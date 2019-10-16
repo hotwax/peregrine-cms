@@ -27,6 +27,17 @@
         <template v-for="child in model.children">
             <div v-bind:is="child.component" v-bind:model="child"></div>
         </template>
+        <template v-if="isEditor()">
+            <admin-components-action
+                    v-bind:model = "{
+                        command: 'selectPath',
+                        target: getStoreFrontUrl(),
+                        tooltipTitle: $i18n('preview'),
+                        title: 'preview',
+                        type: 'preview'
+                    }">
+            </admin-components-action>
+        </template>
     </div>
 </template>
 
@@ -40,7 +51,25 @@ export default {
             }
             return 'navright'
         }
+    },
+    methods: {
+            isEditor: function() {
+                return this.$root.$data.adminPage.title === "editor"
+            },
+            getStoreFrontUrl(){
+                if (this.$root.$data.pageView) {
+                    if(this.$root.$data.pageView.path) {
+                        //TODO: baseUrl should be maintain in configuration file
+                        var baseUrl = "https://vuestorefront.hotwax.co"
+                        var path = this.$root.$data.pageView.path;
+                        var pageName= path.substring(path.lastIndexOf("/"),path.length);
+                        var storeFrontUrl = baseUrl + pageName
+                        return storeFrontUrl;
+                    }
+                }
+                return "";
+            }
+        }
     }
-}
 </script>
 

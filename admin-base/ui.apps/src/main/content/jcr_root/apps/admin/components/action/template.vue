@@ -24,7 +24,7 @@
   -->   
 <template>
     <span v-if="visible">
-        <a 
+        <a
             v-if                    = "!model.type"
             v-bind:href             = "targetHtml"
             v-bind:title            = "title"
@@ -33,7 +33,7 @@
             {{model.title}}
             <slot></slot>
         </a>
-        <a 
+        <a
             v-if                    = "model.type === 'icon'" 
             v-bind:title            = "title"
             v-bind:href             = "target" 
@@ -44,6 +44,17 @@
                 {{model.icon ? model.icon : model.title}}
                 <slot></slot>
             </i>
+        </a>
+        <a v-if = "model.type==='preview'"
+            v-bind:title = "title"
+            v-bind:href = "model.target"
+            target = "_blank"
+            class = "btn-floating waves-effect waves-light"
+            v-bind:class = "model.classes">
+            <i class="fa fa-eye" v-bind:class="isSelected ? 'actionSelected' : ''">
+                <slot></slot>
+            </i>
+            {{model.title}}
         </a>
     </span>
 </template>
