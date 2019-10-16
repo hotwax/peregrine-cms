@@ -45,13 +45,12 @@
                 <slot></slot>
             </i>
         </a>
-        <a
-            v-if                    ="model.type==='preview'"
-            v-bind:title            = "title"
-            v-bind:href             = "model.target"
-            target                  = "_blank"
-            class                   = "btn-floating waves-effect waves-light"
-            v-bind:class            = "model.classes">
+        <a v-if = "model.type==='preview'"
+            v-bind:title = "title"
+            v-bind:href = "model.target"
+            target = "_blank"
+            class = "btn-floating waves-effect waves-light"
+            v-bind:class = "model.classes">
             <i class="fa fa-eye" v-bind:class="isSelected ? 'actionSelected' : ''">
                 <slot></slot>
             </i>

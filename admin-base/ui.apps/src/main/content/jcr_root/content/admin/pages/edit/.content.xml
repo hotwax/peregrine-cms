@@ -73,6 +73,11 @@
                          <de jcr:primaryType="nt:unstructured" experiences="[lang:de]" title="Vorschau"/>
                      </experiences>
                  </preview>-->
+                 <!--
+                     TODO: The preview icon for viewStoreFront is defined in
+                     admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/subnav/template.vue
+                     We should find better location for this.
+                 -->
              </subnav>
             </nav>
 

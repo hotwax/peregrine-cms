@@ -138,14 +138,11 @@
                             </a>
                         </span> -->
                         <span v-if="viewable(child)">
-                         <a
-                            target      ="viewer"
-                            v-bind:href ="viewSiteUrl(child.title)"
-                            v-on:click.stop  =""
-                            v-bind:title="`${$i18n('view')} '${child.title || child.name}' ${$i18n('in vuestorefront side')}`">
-                            <i class="material-icons">visibility</i>
+                            <a target = "viewer" v-bind:href = "getStoreFrontUrl(child.title)" v-on:click.stop  = ""
+                                    v-bind:title = "`${$i18n('view')} '${child.title || child.name}' ${$i18n('preview')}`">
+                                <i class="material-icons">visibility</i>
                             </a>
-                           </span>
+                        </span>
 
                         <admin-components-action
                             v-bind:model="{
@@ -439,11 +436,14 @@
                 }
                 return path + '.json'
             },
-            viewSiteUrl: function(pagename) {
-                var baseUrl="https://vuestorefront.hotwax.co/";
-                var url=baseUrl + pagename;
+
+            getStoreFrontUrl: function(pageName) {
+                //TODO: baseUrl should be maintain in configuration file
+                var baseUrl = "https://vuestorefront.hotwax.co/";
+                var url = baseUrl + pageName;
                 return url
             },
+
             nodeTypeToIcon: function(nodeType) {
 
                 if(nodeType === 'per:Page')     return 'description'
