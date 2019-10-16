@@ -108,14 +108,15 @@
                             <admin-components-iconeditpage></admin-components-iconeditpage>
                         </admin-components-action>
 
-                        <admin-components-action v-if="replicatable(child)"
+                       <!-- <admin-components-action v-if="replicatable(child)"
                             v-bind:model="{
                                 target: child.path,
                                 command: 'replicate',
                                 tooltipTitle: `${$i18n('replicate')} '${child.title || child.name}'`
                             }">
+
                             <i class="material-icons" v-bind:class="replicatedClass(child)">public</i>
-                        </admin-components-action>
+                        </admin-components-action> -->
 
                         <admin-components-action v-if="editable(child)"
                             v-bind:model="{
@@ -126,7 +127,7 @@
                             <i class="material-icons">info</i>
                         </admin-components-action>
 
-                        <span v-if="viewable(child)">
+                        <!--<span v-if="viewable(child)">
                             <a
                                 target      ="viewer"
                                 v-bind:href ="viewUrl(child)"
@@ -135,7 +136,16 @@
                                 >
                                 <i class="material-icons">visibility</i>
                             </a>
-                        </span>
+                        </span> -->
+                        <span v-if="viewable(child)">
+                         <a
+                            target      ="viewer"
+                            v-bind:href ="viewSiteUrl(child.title)"
+                            v-on:click.stop  =""
+                            v-bind:title="`${$i18n('view')} '${child.title || child.name}' ${$i18n('in vuestorefront side')}`">
+                            <i class="material-icons">visibility</i>
+                            </a>
+                           </span>
 
                         <admin-components-action
                             v-bind:model="{
@@ -428,6 +438,11 @@
                     return path + '.html'
                 }
                 return path + '.json'
+            },
+            viewSiteUrl: function(pagename) {
+                var baseUrl="https://vuestorefront.hotwax.co/";
+                var url=baseUrl + pagename;
+                return url
             },
             nodeTypeToIcon: function(nodeType) {
 
