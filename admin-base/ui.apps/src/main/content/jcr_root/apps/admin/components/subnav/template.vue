@@ -63,7 +63,7 @@ export default {
                         var baseUrl = "https://vuestorefront.hotwax.co";
                         var path = this.$root.$data.pageView.path;
                         var pageName= path.substring(path.lastIndexOf("/"),path.length);
-                        //TODO: We should work on better approach here
+                        //TODO: We should work on better approach here to find url for the index page
                         if (pageName === "index") {
                             return baseUrl;
                         }
