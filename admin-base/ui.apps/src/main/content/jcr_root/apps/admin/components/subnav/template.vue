@@ -60,11 +60,16 @@ export default {
                 if (this.$root.$data.pageView) {
                     if(this.$root.$data.pageView.path) {
                         //TODO: baseUrl should be maintain in configuration file
-                        var baseUrl = "https://vuestorefront.hotwax.co"
+                        var baseUrl = "https://vuestorefront.hotwax.co";
                         var path = this.$root.$data.pageView.path;
                         var pageName= path.substring(path.lastIndexOf("/"),path.length);
-                        var storeFrontUrl = baseUrl + pageName
-                        return storeFrontUrl;
+                        if(pageName==="/index"){
+                            return baseUrl;
+                        }
+                        else{
+                            var storeFrontUrl = baseUrl + pageName;
+                            return storeFrontUrl;
+                        }
                     }
                 }
                 return "";
