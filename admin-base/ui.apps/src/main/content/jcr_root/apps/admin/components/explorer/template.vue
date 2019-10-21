@@ -436,14 +436,16 @@
                 }
                 return path + '.json'
             },
-
             getStoreFrontUrl: function(pageName) {
                 //TODO: baseUrl should be maintain in configuration file
                 var baseUrl = "https://vuestorefront.hotwax.co/";
-                var url = baseUrl + pageName;
-                return url
+                //TODO: We should work on better approach here to find url for the index page
+                if (pageName === "index") {
+                    return baseUrl;
+                }
+                var storeFrontUrl = baseUrl + pageName;
+                return storeFrontUrl;
             },
-
             nodeTypeToIcon: function(nodeType) {
 
                 if(nodeType === 'per:Page')     return 'description'
