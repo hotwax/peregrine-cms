@@ -439,13 +439,12 @@
             getStoreFrontUrl: function(pageName) {
                 //TODO: baseUrl should be maintain in configuration file
                 var baseUrl = "https://vuestorefront.hotwax.co/";
-                if(pageName==="index"){
+                //TODO: We should work on better approach here
+                if (pageName === "index") {
                     return baseUrl;
                 }
-                else{
-                    var storeFrontUrl = baseUrl + pageName;
-                    return storeFrontUrl;
-                }
+                var storeFrontUrl = baseUrl + pageName;
+                return storeFrontUrl;
             },
             nodeTypeToIcon: function(nodeType) {
 
