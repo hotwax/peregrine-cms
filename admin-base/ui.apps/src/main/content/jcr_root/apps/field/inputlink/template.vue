@@ -24,13 +24,13 @@
   -->
 <template>
     <div class="wrap">
-      <input type="radio" id="link" value="link" v-model="picked">
+      <input type="radio" id="link" value="link" v-model="linkType">
       <label for="link">Internal link</label>
-      <input type="radio" id="url" value="url" v-model="picked">
+      <input type="radio" id="url" value="url" v-model="linkType">
       <label for="url">Url</label>
       <br>
       <template v-if="!schema.preview">
-      <div v-if="picked ==='link'">
+      <div v-if="linkType === 'link'">
         <input
           :id="getFieldID(schema)"
           type="text"
@@ -39,7 +39,7 @@
           :maxlength="schema.max"
           :placeholder="schema.placeholder"
           :readonly="schema.readonly"
-          @input="value = $event.target.value" />
+          @input="value=$event.target.value" />
         <button v-on:click.stop.prevent="browse" class="btn-flat">
           <i class="material-icons">insert_drive_file</i>
         </button>
@@ -86,19 +86,19 @@
                 currentPath: '/content/assets',
                 selectedPath: null,
                 withLinkTab: true,
-                picked: 'url'
+                linkType: 'url'
             }
         },
         computed: {
-			sanitizedValue: {
-				get () {
-      		        return this.value ? this.value : ''
-				},
-				set (newValue) {
-					this.value = newValue
-				}
-			}
-		},
+            sanitizedValue: {
+                get () {
+                    return this.value ? this.value : ''
+                },
+                set (newValue) {
+                    this.value = newValue
+                }
+            }
+        },
         methods: {
             onCancel(){
                 this.isOpen = false
