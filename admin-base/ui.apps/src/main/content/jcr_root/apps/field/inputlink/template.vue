@@ -1,0 +1,163 @@
+<!--
+  #%L
+  admin base - UI Apps
+  %%
+  Copyright (C) 2017 headwire inc.
+  %%
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+  #L%
+  -->
+<template>
+    <div class="wrap">
+      <input type="radio" id="link" value="link" v-model="linkType">
+      <label for="link">Internal link</label>
+      <input type="radio" id="url" value="url" v-model="linkType">
+      <label for="url">Url</label>
+      <br>
+      <template v-if="!schema.preview">
+      <div v-if="linkType === 'link'">
+        <input
+          :id="getFieldID(schema)"
+          type="text"
+          :value="sanitizedValue"
+          :disabled="disabled"
+          :maxlength="schema.max"
+          :placeholder="schema.placeholder"
+          :readonly="schema.readonly"
+          @input="value=$event.target.value" />
+        <button v-on:click.stop.prevent="browse" class="btn-flat">
+          <i class="material-icons">insert_drive_file</i>
+        </button>
+        <img v-if="isImage(value)" :src="sanitizedValue" />
+        <admin-components-pathbrowser
+            v-if="isOpen"
+            :isOpen="isOpen"
+            :browserRoot="browserRoot"
+            :browserType="browserType"
+            :currentPath="currentPath"
+            :selectedPath="selectedPath"
+            :withLinkTab="withLinkTab"
+            :setCurrentPath="setCurrentPath"
+            :setSelectedPath="setSelectedPath"
+            :onCancel="onCancel"
+            :onSelect="onSelect">
+        </admin-components-pathbrowser>
+        </div>
+        <div v-else>
+        <input
+            :id="getFieldID(schema)"
+             type="text"
+            :value="sanitizedValue"
+            :disabled="disabled"
+            :maxlength="schema.max"
+            :placeholder="schema.placeholder"
+            :readonly="schema.readonly"
+            @input="value = $event.target.value" />
+        </div>
+      </template>
+      <p v-else>{{value}}</p>
+    </div>
+</template>
+
+<script>
+    export default {
+        props: ['model'],
+        mixins: [ VueFormGenerator.abstractField ],
+        data () {
+            return {
+                isOpen: false,
+                browserRoot: '/content/assets',
+                browserType: 'asset',
+                currentPath: '/content/assets',
+                selectedPath: null,
+                withLinkTab: true,
+                linkType: 'url'
+            }
+        },
+        computed: {
+            sanitizedValue: {
+                get () {
+                    return this.value ? this.value : ''
+                },
+                set (newValue) {
+                    this.value = newValue
+                }
+            }
+        },
+        methods: {
+            onCancel(){
+                this.isOpen = false
+            },
+            onSelect() {
+                this.value = this.selectedPath
+                this.isOpen = false
+            },
+            setCurrentPath(path){
+                this.currentPath = path
+            },
+            setSelectedPath(path){
+                this.selectedPath = path
+            },
+            isImage(path) {
+                return /\.(jpg|png|gif)$/.test(path);
+            },
+            isValidPath(path, root){
+                return path && path !== root && path.includes(root)
+            },
+            browse() {
+                // root path is used to limit top lever directory of path browser
+                let root = this.schema.browserRoot
+                if(!root) {
+                    console.warn('browserRoot not defined in schema. All paths are available.')
+                    root = '/'
+                }
+                // browser type is used to limit browsing and show correct file/icon types
+                let type = this.schema.browserType
+                if(!type) {
+                    root === '/content/sites' ? type = 'page' : type = 'asset'
+                }
+                let selectedPath = this.value
+                // current path is the active directory in the path browser
+                let currentPath
+                // if a selected path is valid, currentPath becomes the selected path's parent
+                if(this.isValidPath(selectedPath, root)){
+                    currentPath = selectedPath.substr(0, selectedPath.lastIndexOf('/'))
+                } else { // if path is invalid
+                    currentPath = root
+                }
+                this.browserRoot = root
+                this.browserType = type
+                this.currentPath = currentPath
+                this.selectedPath = selectedPath
+
+                let options = this.schema.browserOptions
+                if(options && options.withLink){
+                    this.withLinkTab = options.withLink
+                } else {
+                    this.withLinkTab = true
+                }
+                $perAdminApp.getApi().populateNodesForBrowser(currentPath, 'pathBrowser')
+                    .then( () => {
+                        this.isOpen = true
+                    }).catch( (err) => {
+                        $perAdminApp.getApi().populateNodesForBrowser('/content', 'pathBrowser')
+                    })
+            }
+        }
+    }
+</script>
