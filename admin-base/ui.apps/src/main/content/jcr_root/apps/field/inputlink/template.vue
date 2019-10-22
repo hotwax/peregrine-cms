@@ -24,10 +24,10 @@
   -->
 <template>
     <div class="wrap">
-      <input type="radio" id="link" value="link" v-model="linkType">
-      <label for="link">Internal link</label>
-      <input type="radio" id="url" value="url" v-model="linkType">
-      <label for="url">Url</label>
+      <input type="radio" :id="radioLink + _uid" value="link" v-model="linkType">
+      <label :for="radioLink + _uid">Internal link</label>
+      <input type="radio" :id="radioUrl + _uid" value="url" v-model="linkType">
+      <label :for="radioUrl + _uid">Url</label>
       <br>
       <template v-if="!schema.preview">
       <div v-if="linkType === 'link'">
@@ -86,7 +86,9 @@
                 currentPath: '/content/assets',
                 selectedPath: null,
                 withLinkTab: true,
-                linkType: 'url'
+                linkType: 'url',
+                radioLink: 'link',
+                radioUrl: 'url'
             }
         },
         computed: {
