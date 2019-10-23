@@ -37,7 +37,7 @@
           :value="sanitizedValue"
           :disabled="disabled"
           :maxlength="schema.max"
-          :placeholder="schema.placeholder"
+          :placeholder="schema.internalLinkPlaceholder"
           :readonly="schema.readonly"
           @input="value=$event.target.value" />
         <button v-on:click.stop.prevent="browse" class="btn-flat">
@@ -65,7 +65,7 @@
             :value="sanitizedValue"
             :disabled="disabled"
             :maxlength="schema.max"
-            :placeholder="schema.placeholder"
+            :placeholder="schema.urlPlaceholder"
             :readonly="schema.readonly"
             @input="value = $event.target.value" />
         </div>
