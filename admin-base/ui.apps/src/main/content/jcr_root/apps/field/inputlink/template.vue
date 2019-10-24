@@ -24,13 +24,13 @@
   -->
 <template>
     <div class="wrap">
-      <input type="radio" :id="radioLink + _uid" value="link" v-model="linkType">
+      <input type="radio" :id="radioLink + _uid" value="link" v-model="linkType" @change="setLinkType">
       <label :for="radioLink + _uid">Internal link</label>
-      <input type="radio" :id="radioUrl + _uid" value="url" v-model="linkType">
+      <input type="radio" :id="radioUrl + _uid" value="url" v-model="linkType" @change="setLinkType">
       <label :for="radioUrl + _uid">Url</label>
       <br>
       <template v-if="!schema.preview">
-      <div v-if="linkType === 'link'">
+      <div v-if="linkType === 'link' ||  linkType == null">
         <input
           :id="getFieldID(schema)"
           type="text"
@@ -57,8 +57,8 @@
             :onCancel="onCancel"
             :onSelect="onSelect">
         </admin-components-pathbrowser>
-        </div>
-        <div v-else>
+      </div>
+      <div v-else>
         <input
             :id="getFieldID(schema)"
              type="text"
@@ -68,7 +68,7 @@
             :placeholder="schema.urlPlaceholder"
             :readonly="schema.readonly"
             @input="value = $event.target.value" />
-        </div>
+      </div>
       </template>
       <p v-else>{{value}}</p>
     </div>
@@ -86,7 +86,7 @@
                 currentPath: '/content/assets',
                 selectedPath: null,
                 withLinkTab: true,
-                linkType: 'url',
+                linkType: this.model.linkType,
                 radioLink: 'link',
                 radioUrl: 'url'
             }
@@ -102,6 +102,9 @@
             }
         },
         methods: {
+            setLinkType(){
+                this.model.linkType = this.linkType;
+            },
             onCancel(){
                 this.isOpen = false
             },
