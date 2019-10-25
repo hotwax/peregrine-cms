@@ -24,13 +24,13 @@
   -->
 <template>
     <div class="wrap">
-      <input type="radio" :id="radioLink + _uid" value="link" v-model="linkType" @change="setLinkType">
+      <input type="radio" :id="radioLink + _uid" value="internalLink" v-model="linkType" @change="setLinkType">
       <label :for="radioLink + _uid">Internal link</label>
       <input type="radio" :id="radioUrl + _uid" value="url" v-model="linkType" @change="setLinkType">
       <label :for="radioUrl + _uid">Url</label>
       <br>
       <template v-if="!schema.preview">
-      <div v-if="linkType === 'link' ||  linkType == null">
+      <div v-if="linkType === 'internalLink' ||  linkType == null">
         <input
           :id="getFieldID(schema)"
           type="text"
@@ -87,7 +87,7 @@
                 selectedPath: null,
                 withLinkTab: true,
                 linkType: this.model.linkType,
-                radioLink: 'link',
+                radioLink: 'internalLink',
                 radioUrl: 'url'
             }
         },
