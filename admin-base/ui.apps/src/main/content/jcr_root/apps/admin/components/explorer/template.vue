@@ -438,7 +438,7 @@
             },
             getStoreFrontUrl: function(pageName) {
                 //TODO: baseUrl should be maintain in configuration file
-                var baseUrl = "https://vuestorefront.hotwax.co/";
+                var baseUrl = "https://demo-in.hotwax.co/";
                 //TODO: We should work on better approach here to find url for the index page
                 if (pageName === "index") {
                     return baseUrl;
