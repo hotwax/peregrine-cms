@@ -24,16 +24,22 @@
   -->
 <template>
     <div class="wrap">
+      <input type="radio" :id="radioLink + _uid" value="internalLink" v-model="imageLinkType" @change="setLinkType">
+      <label :for="radioLink + _uid">Image</label>
+      <input type="radio" :id="radioUrl + _uid" value="url" v-model="imageLinkType" @change="setLinkType">
+      <label :for="radioUrl + _uid">Url</label>
+      <br>
       <template v-if="!schema.preview">
+      <div v-if="imageLinkType === 'internalLink' ||  imageLinkType == null">
         <input
-          :id="getFieldID(schema)"
-          type="text"
-          :value="sanitizedValue"
-          :disabled="disabled"
-          :maxlength="schema.max"
-          :placeholder="schema.placeholder"
-          :readonly="schema.readonly"
-          @input="value = $event.target.value" />
+            :id="getFieldID(schema)"
+            type="text"
+            :value="sanitizedValue"
+            :disabled="disabled"
+            :maxlength="schema.max"
+            :placeholder="schema.placeholder"
+            :readonly="schema.readonly"
+            @input="value = $event.target.value" />
         <button v-on:click.stop.prevent="browse" class="btn-flat">
           <i class="material-icons">insert_drive_file</i>
         </button>
@@ -51,6 +57,18 @@
             :onCancel="onCancel"
             :onSelect="onSelect">
         </admin-components-pathbrowser>
+      </div>
+      <div v-else>
+        <input
+            :id="getFieldID(schema)"
+            type="text"
+            :value="sanitizedValue"
+            :disabled="disabled"
+            :maxlength="schema.max"
+            placeholder="URl"
+            :readonly="schema.readonly"
+            @input="value = $event.target.value" />
+        </div>
       </template>
       <p v-else>{{value}}</p>
     </div>
@@ -67,7 +85,10 @@
                 browserType: 'asset',
                 currentPath: '/content/assets',
                 selectedPath: null,
-                withLinkTab: true
+                withLinkTab: true,
+                imageLinkType: this.model.imageLinkType,
+                radioLink: 'internalLink',
+                radioUrl: 'url'
             }
         },
         computed: {
@@ -81,6 +102,9 @@
 			}
 		},
         methods: {
+            setLinkType(){
+                this.model.imageLinkType = this.imageLinkType;
+            },
             onCancel(){
                 this.isOpen = false
             },
