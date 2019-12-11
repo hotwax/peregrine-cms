@@ -25,9 +25,9 @@
 <template>
     <div class="wrap">
       <input type="radio" :id="radioLink + _uid" value="internalLink" v-model="imageLinkType" @change="setLinkType">
-      <label :for="radioLink + _uid">Image</label>
+      <label :for="radioLink + _uid">Internal Image</label>
       <input type="radio" :id="radioUrl + _uid" value="url" v-model="imageLinkType" @change="setLinkType">
-      <label :for="radioUrl + _uid">Url</label>
+      <label :for="radioUrl + _uid">External Url</label>
       <br>
       <template v-if="!schema.preview">
       <div v-if="imageLinkType === 'internalLink' ||  imageLinkType == null">
