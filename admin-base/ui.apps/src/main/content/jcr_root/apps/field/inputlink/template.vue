@@ -91,6 +91,9 @@
                 radioUrl: 'url'
             }
         },
+        created(){
+            this.linkType = this.linkType || 'internalLink'
+        },
         computed: {
             sanitizedValue: {
                 get () {
