@@ -6,8 +6,8 @@ index 8f2e95c9f..6359daad8 100644
              },
              getStoreFrontUrl: function(pageName) {
                  //TODO: baseUrl should be maintain in configuration file
--                var baseUrl = "https://demo-in.hotwax.co/";
-+                var baseUrl = "https://demo.hotwax.co/";
+-                var baseUrl = "https://demo-in.hotwax.io/";
++                var baseUrl = "https://demo.hotwax.io/";
                  //TODO: We should work on better approach here to find url for the index page
                  if (pageName === "index") {
                      return baseUrl;
@@ -19,8 +19,8 @@ index 13714d1ac..5639e795d 100644
                  if (this.$root.$data.pageView) {
                      if(this.$root.$data.pageView.path) {
                          //TODO: baseUrl should be maintain in configuration file
--                        var baseUrl = "https://demo-in.hotwax.co";
-+                        var baseUrl = "https://demo.hotwax.co";
+-                        var baseUrl = "https://demo-in.hotwax.io";
++                        var baseUrl = "https://demo.hotwax.io";
                          var path = this.$root.$data.pageView.path;
                          var pageName= path.substring(path.lastIndexOf("/"),path.length);
                          //TODO: We should work on better approach here to find url for the index page
