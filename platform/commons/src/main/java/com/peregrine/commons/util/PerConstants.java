@@ -37,6 +37,10 @@ public class PerConstants {
     public static final String PER_REPLICATED = "per:Replicated";
     public static final String PER_REPLICATION_REF = "per:ReplicationRef";
 
+    public static final String SLING_SERVLET_DEFAULT = "sling/servlet/default";
+
+    public static final String UTF_8 = "utf-8";
+
     public static final String RENDITION_ACTION = "rendition.json";
 
     public static final String ORDER_BEFORE_TYPE = "before";
@@ -48,14 +52,17 @@ public class PerConstants {
 
     public static final String DISTRIBUTION_SUB_SERVICE = "peregrine-distribution-sub-service";
 
-    public static final String ECMA_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
+    public static final String ECMA_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public static final Locale ECMA_DATE_FORMAT_LOCALE = Locale.US;
 
     public static final String SLASH = "/";
     public static final String DASH = "-";
 
+    public static final String HTML = "html";
+
     public static final String JSON_MIME_TYPE = "application/json;charset=utf-8";
     public static final String HTML_MIME_TYPE = "text/html";
+    public static final String APPLICATION_XML_MIME_TYPE = "application/xml";
     public static final String DATA_JSON_EXTENSION = ".data.json";
 
     public static final String PNG_MIME_TYPE = "image/png";
@@ -66,11 +73,15 @@ public class PerConstants {
     public static final String TEXT_MIME_TYPE = "plain/text";
 
     public static final String APPS_ROOT = "/apps";
-    public static final String ASSETS_ROOT = "/content/assets";
-    public static final String FELIBS_ROOT = "/etc/felibs";
-    public static final String OBJECTS_ROOT = "/content/objects";
-    public static final String SITES_ROOT = "/content/sites";
-    public static final String TEMPLATES_ROOT = "/content/templates";
+    public static final String NN_CONTENT = "content";
+    public static final String CONTENT_ROOT = SLASH + NN_CONTENT;
+    public static final String ETC_ROOT = "/etc";
+    public static final String FELIBS_ROOT = ETC_ROOT + "/felibs";
+    public static final String SITES_ROOT = CONTENT_ROOT + "/sites";
+    public static final String TEMPLATES_ROOT = CONTENT_ROOT + "/templates";
+    public static final String ASSETS_ROOT = CONTENT_ROOT + "/assets";
+    public static final String OBJECTS_ROOT = CONTENT_ROOT + "/objects";
+    public static final String PACKAGES_PATH = ETC_ROOT + "/packages";
 
     public static final String COMPONENTS = "components";
     public static final String TEMPLATES = "templates";
@@ -97,6 +108,8 @@ public class PerConstants {
     public static final String TAGS = "tags";
     public static final String METAPROPERTIES = "metaproperties";
     public static final String UPDATED = "updated";
+    public static final String OG_TAGS = "ogTags";
+    public static final String COLOR_PALETTE = "colorPalette";
 
     public static final String PAGE = "page";
     public static final String DROP = "drop";
@@ -106,5 +119,9 @@ public class PerConstants {
     public static final String FROM_SITE_NAME = "fromSite";
     public static final String TO_SITE_NAME = "toSite";
     public static final String DEPENDENCIES = "dependencies";
+
+    public static final String EXCLUDE_FROM_SITEMAP = "excludeFromSitemap";
+    public static final String CHANGE_FREQUENCY = "changefreq";
+    public static final String PRIORITY = "priority";
 }
 

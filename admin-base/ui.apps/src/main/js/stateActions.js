@@ -22,13 +22,10 @@
  * under the License.
  * #L%
  */
-import { LoggerFactory } from './logger'
-let log = LoggerFactory.logger('actions').setLevelDebug()
-
-let actions = []
-
+import {LoggerFactory} from './logger'
 import selectToolsNodesPath from './stateActions/selectToolsNodesPath'
 import createPage from './stateActions/createPage'
+import createPageFromSkeletonPage from './stateActions/createPageFromSkeletonPage'
 import createPageWizard from './stateActions/createPageWizard'
 import createSiteWizard from './stateActions/createSiteWizard'
 import createSite from './stateActions/createSite'
@@ -78,12 +75,19 @@ import replicate from './stateActions/replicate'
 import moveTemplate from './stateActions/moveTemplate'
 import renameObject from './stateActions/renameObject'
 import moveObject from './stateActions/moveObject'
+import deleteTemplate from './stateActions/deleteTemplate';
+import renameTemplate from './stateActions/renameTemplate';
+
+let log = LoggerFactory.logger('actions').setLevelDebug()
+
+let actions = []
 
 actions['selectToolsNodesPath'] = selectToolsNodesPath
 actions['createSiteWizard'] = createSiteWizard
 actions['createSite'] = createSite
 actions['createPageWizard'] = createPageWizard
 actions['createPage'] = createPage
+actions['createPageFromSkeletonPage'] = createPageFromSkeletonPage
 actions['deletePage'] = deletePage
 actions['deleteSite'] = deleteSite
 actions['renamePage'] = renamePage
@@ -129,7 +133,12 @@ actions['renameObject'] = renameObject
 actions['savePageProperties'] = savePageProperties
 actions['replicate'] = replicate
 actions['moveObject'] = moveObject
+
+actions['showTemplateInfo'] = showPageInfo
+actions['saveTemplateProperties'] = savePageProperties
+actions['renameTemplate'] = renameTemplate
 actions['moveTemplate'] = moveTemplate
+actions['deleteTemplate'] = deleteTemplate
 
 function noopAction(me, target) {
     log.error('state action noop with target:', target)

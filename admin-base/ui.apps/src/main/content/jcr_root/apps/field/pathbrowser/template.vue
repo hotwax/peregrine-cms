@@ -40,7 +40,7 @@
             :placeholder="schema.placeholder"
             :readonly="schema.readonly"
             @input="value = $event.target.value" />
-        <button v-on:click.stop.prevent="browse" class="btn-flat">
+        <button v-if="!schema.readonly" :disabled="disabled" v-on:click.stop.prevent="browse" class="btn-flat">
           <i class="material-icons">insert_drive_file</i>
         </button>
         <img v-if="isImage(value)" :src="sanitizedValue" />
@@ -75,6 +75,8 @@
 </template>
 
 <script>
+    import {PathBrowser} from "../../../../../js/constants";
+
     export default {
         props: ['model'],
         mixins: [ VueFormGenerator.abstractField ],
@@ -82,7 +84,7 @@
             return {
                 isOpen: false,
                 browserRoot: '/content/assets',
-                browserType: 'asset',
+                browserType: PathBrowser.Type.ASSET,
                 currentPath: '/content/assets',
                 selectedPath: null,
                 withLinkTab: true,
@@ -137,7 +139,7 @@
                 // browser type is used to limit browsing and show correct file/icon types
                 let type = this.schema.browserType
                 if(!type) {
-                    root === '/content/sites' ? type = 'page' : type = 'asset'
+                    root === '/content/sites' ? type = PathBrowser.Type.PAGE : type = PathBrowser.Type.ASSET
                 }
                 let selectedPath = this.value
                 // current path is the active directory in the path browser
@@ -157,7 +159,7 @@
                 if(options && options.withLink){
                     this.withLinkTab = options.withLink
                 } else {
-                    this.withLinkTab = true
+                    this.withLinkTab = !(type === PathBrowser.Type.IMAGE)
                 }
                 $perAdminApp.getApi().populateNodesForBrowser(currentPath, 'pathBrowser')
                     .then( () => {
