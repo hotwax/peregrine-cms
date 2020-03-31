@@ -47,7 +47,7 @@
                         <i class="material-icons">keyboard_arrow_left</i>
                     </button>
                     <div class="image-container">
-                        <img v-bind:src="viewing.webformatURL">
+                        <img v-bind:src="viewing.thumbnail_url">
                         <!-- Image rename form -->
                         <div v-if="uploading" class="progress">
                             <div class="determinate" :style="{width: `${uploading}%`}"></div>
@@ -63,21 +63,19 @@
                         <i class="material-icons">keyboard_arrow_right</i>
                     </button>
                 </div>
-                <div class="image-preview-details">
+                <!-- <div class="image-preview-details">
                     <span class="resolution">{{viewing.webformatWidth}} x {{viewing.webformatHeight}}</span>
                     <div class="chipcontainer"><div v-for="tag in tags" class="chip">{{tag}}</div></div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Image Results Grid --> 
             <div v-else v-on:scroll="handleScroll" class="image-results">
-                <p> This is part of image</p>
                 <div
-                    v-for="(item,i) in dataReturn"
+                    v-for="(item, i) in state.results"
                     v-on:click.stop="select(i)"
                     v-bind:style="{backgroundImage: `url('${item.thumbnail_url}')`}" 
                     class="image-item hoverable">
-                    <p>{item.thumbnail_url}</p>
                 </div>
                 <div class="image-results-status">
                     <div v-if="endOfResults" class="col s12">
@@ -96,7 +94,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
@@ -127,14 +124,13 @@
                 columns: null,
                 itemsPerPage: null,
                 endOfResults: false,
-                loading: false,
-                dataReturn: [] 
+                loading: false
             }
         },
 
-        computed: {
-            tags() { return this.viewing.tags.split(', ') }
-        },
+        // computed: {
+        //     tags() { return this.viewing.tags.split(', ') }
+        // },
 
         mounted() {
             this.containerWidth = this.$refs.wrapper.offsetWidth
@@ -151,6 +147,7 @@
                 //             `&per_page=${ this.itemsPerPage }`+
                 //             `&q=${ encodeURIComponent(this.state.input) }`
                 // $.getJSON( URL, data => {
+                //     this.dataReturn = data.hits;
                 //     this.state.results = this.state.results.concat(data.hits);
                 //     this.state.totalHits = data.totalHits;
                 //     this.state.numPages = Math.ceil(data.totalHits/this.itemsPerPage);
@@ -159,21 +156,19 @@
                 const API_KEY = 'bb45f57193864d659a5a6f3bcc0ce386';
                 const URL = `https://stock.adobe.io/Rest/Media/1/Search/Files?locale=en_US%26search_parameters%5Bwords%5D=`+
                             `${ encodeURIComponent(this.state.input) }`
-                $.ajax({
-                        beforeSend: function(request) {
-                            request.setRequestHeader("x-api-key", API_KEY);
-                            request.setRequestHeader("x-product", "myTestApp1.0")
-                },
-                dataType: "json",
-                url: URL,
-                success: function(data) {
-                    console.log(data.files[0].thumbnail_url);
-                    this.dataReturn = data.files;
-                    console.log(this.dataReturn)
-                    }
+                fetch(URL,{
+                    method: 'POST',
+                    headers: {'x-api-key' : API_KEY, 'x-product': 'myTestApp1.0'}
+                })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    this.state.results = this.state.results.concat(data.files);
+                    this.loading = false;
+
                 });
             },
-
             search() {
                 this.viewing = null;
                 this.endOfResults = false;
@@ -196,7 +191,7 @@
             },
 
             loadNextPage() {
-                if (this.state.currentPage < this.state.numPages) {
+                if (this.state.currentPage < 3000) {
                     this.state.currentPage++;
                     this.loading = true;
                     this.requestImages();
@@ -211,9 +206,11 @@
                 this.uploading = null
                 this.viewing = this.state.results[index]
                 this.viewing.index = index
-                this.viewing.name = this.viewing.previewURL.split('/').pop()
+                this.viewing.name = this.viewing.thumbnail_url.split('/').pop()
+                console.log(this.viewing.name);
                 if (index >= this.state.results.length - 1) this.loadNextPage();
             },
+            
             deSelect() {
                 this.viewing = null
             },
@@ -225,7 +222,7 @@
             addImage(item, name) {
                 this.uploading = 0;
                 $perAdminApp.stateAction('fetchExternalAsset', { 
-                    url: item.webformatURL, 
+                    url: item.thumbnail_url, 
                     path: $perAdminApp.getNodeFromView('/state/tools/assets'), 
                     name: name,
                     config: { onUploadProgress: ev => this.uploadProgress(Math.floor((ev.loaded * 100) / ev.total)) },
