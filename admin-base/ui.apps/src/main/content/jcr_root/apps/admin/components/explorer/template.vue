@@ -517,6 +517,9 @@
             sourceImage: function(me, target) {
                 $perAdminApp.stateAction('sourceImageWizard', me.pt.path )
             },
+            adobeStockImage: function(me, target) {
+                $perAdminApp.stateAction('adobeStockImageWizard', me.pt.path )
+            },
             addTemplate: function(me, target) {
                 if(me.pt.path === '/content/templates') {
                     $perAdminApp.notifyUser('create new site', 'to create a new site root, please visit the documentation on how to start a new site', null)
