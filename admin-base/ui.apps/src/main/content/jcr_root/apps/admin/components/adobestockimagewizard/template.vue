@@ -36,6 +36,49 @@
         <div v-if="!state.results" class="center">
             <span>{{ $i18n('Search for an image from Adobe Stock and add it directly to your project') }}!</span>
         </div>
+        <!-- Filters show/hide link -->
+        <div>
+            <a href="#" @click="isShowing ^= true" style="float: right;"> + Filters</a>
+        </div>
+        <!-- Filters -->
+        <div v-show="isShowing">
+            <form v-on:submit.prevent="search()">
+                <div style="float:left; width:20%; margin: 20px;">
+                    <label> Orientation </label>
+                    <select class="multiselect" v-model="state.orientation">
+                        <option value="vertical"> Vertical </option>
+                        <option value="horizontal"> Horizontal </option>
+                        <option value="square"> Square </option>
+                        <option value="all"> All </option>
+                    </select>
+                </div>
+                <div style="float:left; width:20%; margin: 20px;">
+                    <label> Price </label>
+                    <select class="multiselect" v-model="state.price">
+                        <option value="false"> Premium </option>
+                        <option value="true"> Standard </option>
+                        <option value="all"> All </option>
+                    </select>
+                </div>
+                <div style="float:left; width:20%; margin: 20px;">
+                    <label> Offensive </label>
+                    <select class="multiselect" v-model="state.offensive">
+                        <option value="1"> Yes </option>
+                        <option value="0"> No </option>
+                    </select>
+                </div>
+                <div style="float:left; width:20%; margin: 20px;">
+                    <label> Isolated Images Only </label>
+                    <select class="multiselect" v-model="state.isolatedImagesOnly">
+                        <option value="1"> Yes </option>
+                        <option value="0"> No </option>
+                    </select>
+                </div>
+                <br><br><br><br><br><br><br>
+                <button class="" type="submit" v-bind:title="$i18n('search')" style="float: right;"> Apply Filters </button>
+            </form>
+        </div>
+
         <div v-if="state.results" class="search-content">
             <span v-if="state.results.length < 1 && !loading" class="no-results">No images found for '{{ state.input }}'</span>
 
@@ -110,7 +153,11 @@
                 scrollPos: null,
                 currentPage: null,
                 input: null,
-                numPages: null
+                numPages: null,
+                orientation: null,
+                price: null,
+                offensive: null,
+                isolatedImagesOnly: null
             }
         },
 
@@ -123,7 +170,8 @@
                 columns: null,
                 itemsPerPage: null,
                 endOfResults: false,
-                loading: false
+                loading: false,
+                isShowing:false,
             }
         },
 
@@ -154,7 +202,10 @@
                 // })
                 const API_KEY = 'bb45f57193864d659a5a6f3bcc0ce386';
                 const URL = `https://stock.adobe.io/Rest/Media/1/Search/Files?locale=en_US&search_parameters[words]=`+
-                            `${ encodeURIComponent(this.state.input) }`
+                            `${ encodeURIComponent(this.state.input) }`+
+                            `&search_parameters[filters][orientation]=${ encodeURIComponent(this.state.orientation) }`+
+                            `&search_parameters[filters][premium]=${ encodeURIComponent(this.state.price) }`+
+                            `&search_parameters[filters][isolated:on]=${ encodeURIComponent(this.state.isolatedImagesOnly) }`
                 fetch(URL,{
                     method: 'POST',
                     headers: {'x-api-key' : API_KEY, 'x-product': 'myTestApp1.0'}
