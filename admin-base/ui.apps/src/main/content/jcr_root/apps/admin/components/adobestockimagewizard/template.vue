@@ -32,7 +32,7 @@
                 <input type="text" v-model="state.input" v-bind:placeholder="$i18n('Search for an image asset')" tabindex="1" autofocus/>
                 <button class="" type="submit" v-bind:title="$i18n('search')" class="image-search-submit"><i class="material-icons">search</i></button>
             </form>
-            <button @click="isShowing ^= true" class="filter-button"> FILTERS </button>
+            <button v-if="!viewing" @click="isShowing ^= true" class="filter-button"> FILTERS </button>
         </div>
         <div>
             <hr>
@@ -42,9 +42,9 @@
             <span v-if="state"> Active filters : </span>
             <span v-if="state.input">
                 <span>Keyword : {{state.input}}  
-                    <i @click="resetInputText" class="material-icons filters-material-icons"> close </i>
                 </span>
-            </span>
+                <i @click="resetInputText" class="material-icons filters-material-icons"> close </i>
+            </span><span></span>
             <span v-if="state.orientation != 'all'">
                 <span>Orientation :
                     <span v-if="state.orientation == 'vertical'"> Vertical </span>
@@ -62,13 +62,13 @@
             </span>
             <span v-if="state.offensive != 0">
                 <span>Offensive : Yes 
-                    <i @click="resetOffensive" class="material-icons filters-material-icons"> close </i>
                 </span>
+                <i @click="resetOffensive" class="material-icons filters-material-icons"> close </i>
             </span>
             <span v-if="state.isolatedImagesOnly != 0">
                 <span>Isolated images : Yes 
-                    <i @click="resetIsolatedImages" class="material-icons filters-material-icons"> close </i>
                 </span>
+                <i @click="resetIsolatedImages" class="material-icons filters-material-icons"> close </i>
             </span>
             <a href="#" @click="clearFilters" class="clear-all-link"> Clear All </a>
         </div>
