@@ -23,28 +23,61 @@
   #L%
   -->
 <template>
-    <div ref="wrapper" v-bind:class="['sourceimagewizard', 'container', {'initial-search':  !state.results}]">
+    <div ref="wrapper" v-bind:class="['adobestockimagewizard', 'container']">
         <div class="search-bar">
             <button v-if="viewing" v-on:click.prevent.stop="deSelect()" class="back-to-grid btn-flat">
-                <i class="material-icons">grid_on</i><span>back to results</span>
+                <i class="material-icons">grid_on</i><span> back to results </span>
             </button>
             <form v-on:submit.prevent="search()" :class="['image-search', {'previewing': viewing}]">
                 <input type="text" v-model="state.input" v-bind:placeholder="$i18n('Search for an image asset')" tabindex="1" autofocus/>
                 <button class="" type="submit" v-bind:title="$i18n('search')" class="image-search-submit"><i class="material-icons">search</i></button>
             </form>
+            <button @click="isShowing ^= true" class="filter-button"> FILTERS </button>
         </div>
-        <div v-if="!state.results" class="center">
-            <span>{{ $i18n('Search for an image from Adobe Stock and add it directly to your project') }}!</span>
-        </div>
-        <!-- Filters show/hide link -->
         <div>
-            <a href="#" @click="isShowing ^= true" style="float: right;"> + Filters</a>
+            <hr>
+        </div>
+        <!-- Filters clear filters link -->
+        <div v-if="!viewing" v-show="isShowing">
+            <span v-if="state"> Active filters : </span>
+            <span v-if="state.input">
+                <span>Keyword : {{state.input}}  
+                    <i @click="resetInputText" class="material-icons filters-material-icons"> close </i>
+                </span>
+            </span>
+            <span v-if="state.orientation != 'all'">
+                <span>Orientation :
+                    <span v-if="state.orientation == 'vertical'"> Vertical </span>
+                    <span v-if="state.orientation == 'horizontal'"> Horizontal </span>
+                    <span v-if="state.orientation == 'square'"> Square </span>
+                    <i @click="resetOrientation" class="material-icons filters-material-icons" > close </i>
+                </span>   
+            </span>
+            <span v-if="state.price != 'all'">
+                <span>Price :
+                    <span v-if="state.price == 'false' "> Standard </span>
+                    <span v-if="state.price == 'true' "> Premium </span>
+                    <i @click="resetPrice" class="material-icons filters-material-icons"> close </i>
+                </span>
+            </span>
+            <span v-if="state.offensive != 0">
+                <span>Offensive : Yes 
+                    <i @click="resetOffensive" class="material-icons filters-material-icons"> close </i>
+                </span>
+            </span>
+            <span v-if="state.isolatedImagesOnly != 0">
+                <span>Isolated images : Yes 
+                    <i @click="resetIsolatedImages" class="material-icons filters-material-icons"> close </i>
+                </span>
+            </span>
+            <a href="#" @click="clearFilters" class="clear-all-link"> Clear All </a>
         </div>
         <!-- Filters -->
-        <div v-show="isShowing">
+        <div v-show="isShowing" v-if="!viewing">
+            <hr>
             <form v-on:submit.prevent="search()">
-                <div style="float:left; width:20%; margin: 20px;">
-                    <label> Orientation </label>
+                <div class="filters-box">
+                    <label><b> Orientation </b></label>
                     <select class="multiselect" v-model="state.orientation">
                         <option value="vertical"> Vertical </option>
                         <option value="horizontal"> Horizontal </option>
@@ -52,33 +85,38 @@
                         <option value="all"> All </option>
                     </select>
                 </div>
-                <div style="float:left; width:20%; margin: 20px;">
-                    <label> Price </label>
+                <div class="filters-box">
+                    <label><b> Price </b></label>
                     <select class="multiselect" v-model="state.price">
-                        <option value="false"> Premium </option>
-                        <option value="true"> Standard </option>
-                        <option value="all"> All </option>
+                        <option value=true > Premium </option>
+                        <option value=false > Standard </option>
+                        <option value="all" > All </option>
                     </select>
                 </div>
-                <div style="float:left; width:20%; margin: 20px;">
-                    <label> Offensive </label>
+                <div class="filters-box">
+                    <label><b> Offensive </b></label>
                     <select class="multiselect" v-model="state.offensive">
                         <option value="1"> Yes </option>
                         <option value="0"> No </option>
                     </select>
                 </div>
-                <div style="float:left; width:20%; margin: 20px;">
-                    <label> Isolated Images Only </label>
+                <div class="filters-box">
+                    <label><b> Isolated Images Only </b></label>
                     <select class="multiselect" v-model="state.isolatedImagesOnly">
                         <option value="1"> Yes </option>
                         <option value="0"> No </option>
                     </select>
                 </div>
-                <br><br><br><br><br><br><br>
-                <button class="" type="submit" v-bind:title="$i18n('search')" style="float: right;"> Apply Filters </button>
+                <br><br><br><br><br><br>
+                <button class="btn btn-sm percms-btn-pager btn-outline-primary" type="submit" v-bind:title="$i18n('search')" style="float: right;"> Apply Filters </button>
+                <a href="#" @click="isShowing ^= true" class="cancel-link"> Cancel </a>
             </form>
+            <br><br>
+            <hr>
         </div>
-
+        <div v-if="!state.results" class="center">
+            <span>{{ $i18n('Search for an image from Adobe Stock and add it directly to your project') }}!</span>
+        </div>
         <div v-if="state.results" class="search-content">
             <span v-if="state.results.length < 1 && !loading" class="no-results">No images found for '{{ state.input }}'</span>
 
@@ -105,10 +143,9 @@
                         <i class="material-icons">keyboard_arrow_right</i>
                     </button>
                 </div>
-                <!-- <div class="image-preview-details">
-                    <span class="resolution">{{viewing.webformatWidth}} x {{viewing.webformatHeight}}</span>
-                    <div class="chipcontainer"><div v-for="tag in tags" class="chip">{{tag}}</div></div>
-                </div> -->
+                <div class="image-preview-details">
+                    <span class="resolution">{{viewing.thumbnail_width}} x {{viewing.thumbnail_height}}</span>
+                </div>
             </div>
 
             <!-- Image Results Grid --> 
@@ -154,10 +191,10 @@
                 currentPage: null,
                 input: null,
                 numPages: null,
-                orientation: null,
-                price: null,
-                offensive: null,
-                isolatedImagesOnly: null
+                orientation: 'all',
+                price: 'all',
+                offensive: 0,
+                isolatedImagesOnly: 0
             }
         },
 
@@ -171,13 +208,9 @@
                 itemsPerPage: null,
                 endOfResults: false,
                 loading: false,
-                isShowing:false,
+                isShowing:false
             }
         },
-
-        // computed: {
-        //     tags() { return this.viewing.tags.split(', ') }
-        // },
 
         mounted() {
             this.containerWidth = this.$refs.wrapper.offsetWidth
@@ -188,25 +221,14 @@
         methods: {
 
             requestImages() {
-                // const API_KEY = '5575459-c51347c999199b9273f4544d4';
-                // const URL = `https://pixabay.com/api/?key=${API_KEY}`+
-                //             `&page=${ this.state.currentPage }`+
-                //             `&per_page=${ this.itemsPerPage }`+
-                //             `&q=${ encodeURIComponent(this.state.input) }`
-                // $.getJSON( URL, data => {
-                //     this.dataReturn = data.hits;
-                //     this.state.results = this.state.results.concat(data.hits);
-                //     this.state.totalHits = data.totalHits;
-                //     this.state.numPages = Math.ceil(data.totalHits/this.itemsPerPage);
-                //     this.loading = false;
-                // })
                 const API_KEY = 'bb45f57193864d659a5a6f3bcc0ce386';
                 const URL = `https://stock.adobe.io/Rest/Media/1/Search/Files?locale=en_US&search_parameters[words]=`+
                             `${ encodeURIComponent(this.state.input) }`+
                             `&search_parameters[filters][orientation]=${ encodeURIComponent(this.state.orientation) }`+
                             `&search_parameters[filters][premium]=${ encodeURIComponent(this.state.price) }`+
+                            `&search_parameters[filters][offensive:2]=${ encodeURIComponent(this.state.offensive) }`+
                             `&search_parameters[filters][isolated:on]=${ encodeURIComponent(this.state.isolatedImagesOnly) }`
-                fetch(URL,{
+                fetch(URL, {
                     method: 'POST',
                     headers: {'x-api-key' : API_KEY, 'x-product': 'myTestApp1.0'}
                 })
@@ -219,6 +241,7 @@
 
                 });
             },
+            
             search() {
                 this.viewing = null;
                 this.endOfResults = false;
@@ -249,7 +272,35 @@
                 else {
                     this.endOfResults = true;
                 }
+            },
 
+            clearFilters() {
+                this.state.orientation = 'all';
+                this.state.price = 'all';
+                this.state.offensive = 0;
+                this.state.isolatedImagesOnly = 0;
+                this.state.input = '';
+
+            },
+            
+            resetOrientation() {
+                this.state.orientation = 'all';
+            },
+
+            resetPrice() {
+                this.state.price = 'all';
+            },
+
+            resetOffensive() {
+                this.state.offensive = 0;
+            },
+
+            resetIsolatedImages() {
+                this.state.isolatedImagesOnly = 0;
+            },
+            
+            resetInputText() {
+                this.state.input = '';
             },
 
             select(index) {
