@@ -225,6 +225,9 @@
                 const URL = `https://stock.adobe.io/Rest/Media/1/Search/Files?locale=en_US&search_parameters[words]=`+
                             `${ encodeURIComponent(this.state.input) }`+
                             `&search_parameters[filters][orientation]=${ encodeURIComponent(this.state.orientation) }`+
+                            `&search_parameters[offset]=${ encodeURIComponent(this.state.currentPage) }`+
+                            `&search_parameters[limit]=${ encodeURIComponent(this.state.numPages) }`+
+                            `&search_parameters[filters][orientation]=${ encodeURIComponent(this.state.orientation) }`+
                             `&search_parameters[filters][premium]=${ encodeURIComponent(this.state.price) }`+
                             `&search_parameters[filters][offensive:2]=${ encodeURIComponent(this.state.offensive) }`+
                             `&search_parameters[filters][isolated:on]=${ encodeURIComponent(this.state.isolatedImagesOnly) }`
@@ -237,6 +240,10 @@
                 })
                 .then((data) => {
                     this.state.results = this.state.results.concat(data.files);
+                    this.state.totalHits = data.nb_results;
+                    // TODO: Fix the hardcoding of 32 limit it is by default result limit of Adobe Stock API.
+                    // this.state.numPages = Math.ceil(this.state.totalHits/this.itemsPerPage);
+                    this.state.numPages = 32;
                     this.loading = false;
 
                 });
@@ -245,7 +252,7 @@
             search() {
                 this.viewing = null;
                 this.endOfResults = false;
-                this.state.currentPage = 1;
+                this.state.currentPage = 0;
                 this.state.results = [];
                 this.loading = true;
                 this.requestImages();
@@ -264,8 +271,8 @@
             },
 
             loadNextPage() {
-                if (this.state.currentPage < 3000) {
-                    this.state.currentPage++;
+                if (this.state.currentPage < this.state.totalHits) {
+                    this.state.currentPage = this.state.currentPage + 32;
                     this.loading = true;
                     this.requestImages();
                 }
