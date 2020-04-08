@@ -39,7 +39,7 @@
         </div>
         <!-- Filters clear filters link -->
         <div v-if="!viewing" v-show="isShowing">
-            <span v-if="state"> Active filters : </span>
+            <span v-if="state.input || state.orientation != 'all' || state.price !='all' || state.offensive != 0 || state.isolatedImagesOnly !=0"> Active filters : </span>
             <span v-if="state.input">
                 <span>Keyword : {{state.input}}  
                 </span>
