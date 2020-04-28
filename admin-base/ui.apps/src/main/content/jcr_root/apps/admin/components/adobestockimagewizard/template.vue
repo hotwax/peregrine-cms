@@ -41,34 +41,47 @@
         <div v-if="!viewing" v-show="isShowing">
             <span v-if="state.input || state.orientation != 'all' || state.price !='all' || state.offensive != 0 || state.isolatedImagesOnly !=0"> Active filters : </span>
             <span v-if="state.input">
-                <span>Keyword : {{state.input}}  
+                <span>Keyword :
+                    <div class="chip">
+                        <span> {{state.input}} </span>
+                        <i @click="resetInputText" class="close material-icons"> close </i>
+                    </div>
                 </span>
-                <i @click="resetInputText" class="material-icons filters-material-icons"> close </i>
             </span><span></span>
             <span v-if="state.orientation != 'all'">
                 <span>Orientation :
+                    <div class="chip">
                     <span v-if="state.orientation == 'vertical'"> Vertical </span>
                     <span v-if="state.orientation == 'horizontal'"> Horizontal </span>
                     <span v-if="state.orientation == 'square'"> Square </span>
-                    <i @click="resetOrientation" class="material-icons filters-material-icons" > close </i>
+                    <i @click="resetOrientation" class="close material-icons" > close </i>
+                    </div>
                 </span>   
             </span>
             <span v-if="state.price != 'all'">
                 <span>Price :
+                    <div class="chip">
                     <span v-if="state.price == 'false' "> Standard </span>
                     <span v-if="state.price == 'true' "> Premium </span>
-                    <i @click="resetPrice" class="material-icons filters-material-icons"> close </i>
+                    <i @click="resetPrice" class="close material-icons"> close </i>
+                    </div>
                 </span>
             </span>
             <span v-if="state.offensive != 0">
-                <span>Offensive : Yes 
+                <span>Offensive :
+                    <div class="chip">
+                        <span> Yes </span>
+                        <i @click="resetOffensive" class="close material-icons"> close </i>
+                    </div>
                 </span>
-                <i @click="resetOffensive" class="material-icons filters-material-icons"> close </i>
             </span>
             <span v-if="state.isolatedImagesOnly != 0">
-                <span>Isolated images : Yes 
+                <span>Isolated images :
+                    <div class="chip">
+                        <span> Yes </span>
+                        <i @click="resetIsolatedImages" class="close material-icons"> close </i>
+                    </div>
                 </span>
-                <i @click="resetIsolatedImages" class="material-icons filters-material-icons"> close </i>
             </span>
             <a href="#" @click="clearFilters" class="clear-all-link"> Clear All </a>
         </div>
@@ -76,38 +89,39 @@
         <div v-show="isShowing" v-if="!viewing">
             <hr>
             <form v-on:submit.prevent="search()">
-                <div class="filters-box">
-                    <label><b> Orientation </b></label>
-                    <select class="multiselect" v-model="state.orientation">
-                        <option value="vertical"> Vertical </option>
-                        <option value="horizontal"> Horizontal </option>
-                        <option value="square"> Square </option>
-                        <option value="all"> All </option>
-                    </select>
+                <div class="row">
+                    <div class="col s3">
+                        <label><b> Orientation </b></label>
+                        <select class="browser-default" v-model="state.orientation">
+                            <option value="vertical"> Vertical </option>
+                            <option value="horizontal"> Horizontal </option>
+                            <option value="square"> Square </option>
+                            <option value="all"> All </option>
+                        </select>
+                    </div>
+                    <div class="col s3">
+                        <label><b> Price </b></label>
+                        <select class="browser-default" v-model="state.price">
+                            <option value=true > Premium </option>
+                            <option value=false > Standard </option>
+                            <option value="all" > All </option>
+                        </select>
+                    </div>
+                    <div class="col s3">
+                        <label><b> Offensive </b></label>
+                        <select class="browser-default" v-model="state.offensive">
+                            <option value="1"> Yes </option>
+                            <option value="0"> No </option>
+                        </select>
+                    </div>
+                    <div class="col s3">
+                        <label><b> Isolated Images Only </b></label>
+                        <select class="browser-default" v-model="state.isolatedImagesOnly">
+                            <option value="1"> Yes </option>
+                            <option value="0"> No </option>
+                        </select>
+                    </div>
                 </div>
-                <div class="filters-box">
-                    <label><b> Price </b></label>
-                    <select class="multiselect" v-model="state.price">
-                        <option value=true > Premium </option>
-                        <option value=false > Standard </option>
-                        <option value="all" > All </option>
-                    </select>
-                </div>
-                <div class="filters-box">
-                    <label><b> Offensive </b></label>
-                    <select class="multiselect" v-model="state.offensive">
-                        <option value="1"> Yes </option>
-                        <option value="0"> No </option>
-                    </select>
-                </div>
-                <div class="filters-box">
-                    <label><b> Isolated Images Only </b></label>
-                    <select class="multiselect" v-model="state.isolatedImagesOnly">
-                        <option value="1"> Yes </option>
-                        <option value="0"> No </option>
-                    </select>
-                </div>
-                <br><br><br><br><br><br>
                 <button class="btn btn-sm percms-btn-pager btn-outline-primary" type="submit" v-bind:title="$i18n('search')" style="float: right;"> Apply Filters </button>
                 <a href="#" @click="isShowing ^= true" class="cancel-link"> Cancel </a>
             </form>
