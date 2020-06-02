@@ -1,9 +1,0 @@
-{
-  "title": "Breadcrumb",
-  "group": "Chrome",
-  "model": {
-    "level": "3",
-    "toppadding": 10,
-    "bottompadding": 10
-  }
-}
