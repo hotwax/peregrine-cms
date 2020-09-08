@@ -13,9 +13,9 @@ package com.peregrine.nodetypes.merge;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -173,6 +173,10 @@ public class PageMerge implements Use {
             if(val instanceof Map) {
                 Map map = (Map) val;
                 String path = (String) map.get(PATH);
+
+                // Localize content using experiences.
+                localizeContent(map);
+
                 if(path != null) {
                     log.debug("find entry for {}", path);
                     for (int i = 0; i < target.size(); i++) {
@@ -191,6 +195,81 @@ public class PageMerge implements Use {
                 target.add(val);
             }
         }
+    }
+
+    private void localizeContent(Map map) {
+        /*
+            Sample node structure, with localization experiences:
+            {
+              "jcr:lastModified": "{Date}2020-09-08 16:20:33",
+              "jcr:lastModifiedBy": "admin",
+              "jcr:primaryType": "{Name}nt:unstructured",
+              "sling:resourceType": "themeclean/components/multilang",
+              "text": "This is text",
+              "title": "This is title",
+              "experiences": {
+                "jcr:primaryType": "{Name}nt:unstructured",
+                "de": {
+                  "experiences": [
+                    "lang:de"
+                  ],
+                  "jcr:primaryType": "{Name}nt:unstructured",
+                  "text": "Das ist Text",
+                  "title": "Das ist Titel"
+                },
+                "fr": {
+                  "experiences": [
+                    "lang:fr"
+                  ],
+                  "jcr:primaryType": "{Name}nt:unstructured",
+                  "text": "C\u0027est du texte",
+                  "title": "C\u0027est le titre"
+                }
+              }
+            }
+        */
+
+        String localeLanguage = request.getLocale().getLanguage();
+        Map localizedContent = getLocalizedContent((ArrayList) map.get("experiences"), localeLanguage);
+
+        // Replacing the node properties with localized one.
+        List<String> excludedProperties = new ArrayList<String>(Arrays.asList("name", "path", "component", "jcr:primaryType", "experiences"));
+        Set localizeContentSet = localizedContent.entrySet();
+        Iterator localizeContentIterator = localizeContentSet.iterator();
+        while(localizeContentIterator.hasNext()) {
+            Map.Entry localizeContentMap = (Map.Entry) localizeContentIterator.next();
+            if(!excludedProperties.contains(localizeContentMap.getKey())) {
+                map.put(localizeContentMap.getKey(), localizeContentMap.getValue());
+            }
+        }
+    }
+
+    private Map getLocalizedContent(ArrayList experiencesNode, String localeLanguage) {
+        Map localizedContent = new LinkedHashMap();
+        if (experiencesNode != null) {
+            for (int index = 0; index < experiencesNode.size(); index++) {
+                LinkedHashMap experience = (LinkedHashMap) experiencesNode.get(index);
+                /*
+                    Sample French language experience node:
+                    {
+                      "experiences": [
+                        "lang:fr"
+                      ],
+                      "jcr:primaryType": "{Name}nt:unstructured",
+                      "text": "C\u0027est du texte",
+                      "title": "C\u0027est le titre"
+                    }
+                 */
+
+                ArrayList experiences = (ArrayList) experience.get("experiences");
+                Boolean isEqualsToRequestLocale = experiences.contains("lang:" + localeLanguage);
+                if (isEqualsToRequestLocale) {
+                    localizedContent = experience;
+                    break;
+                }
+            }
+        }
+        return localizedContent;
     }
 
     private String toJSON(Map template) {
