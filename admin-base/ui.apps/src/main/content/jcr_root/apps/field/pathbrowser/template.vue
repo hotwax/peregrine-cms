@@ -24,33 +24,51 @@
   -->
 <template>
     <div class="wrap">
+      <input type="radio" :id="radioLink + _uid" value="internalLink" v-model="imageLinkType" @change="setLinkType">
+      <label :for="radioLink + _uid">Internal Image</label>
+      <input type="radio" :id="radioUrl + _uid" value="url" v-model="imageLinkType" @change="setLinkType">
+      <label :for="radioUrl + _uid">External Url</label>
+      <br>
       <template v-if="!schema.preview">
-        <input
-          :id="getFieldID(schema)"
-          type="text"
-          :value="sanitizedValue"
-          :disabled="disabled"
-          :maxlength="schema.max"
-          :placeholder="schema.placeholder"
-          :readonly="schema.readonly"
-          @input="value = $event.target.value" />
-        <button v-if="!schema.readonly" :disabled="disabled" v-on:click.stop.prevent="browse" class="btn-flat">
-          <i class="material-icons">insert_drive_file</i>
-        </button>
-        <img v-if="isImage(value)" :src="sanitizedValue" />
-        <admin-components-pathbrowser
-            v-if="isOpen"
-            :isOpen="isOpen"
-            :browserRoot="browserRoot"
-            :browserType="browserType"
-            :currentPath="currentPath"
-            :selectedPath="selectedPath"
-            :withLinkTab="withLinkTab"
-            :setCurrentPath="setCurrentPath"
-            :setSelectedPath="setSelectedPath"
-            :onCancel="onCancel"
-            :onSelect="onSelect">
-        </admin-components-pathbrowser>
+        <div v-if="imageLinkType === 'internalLink'">
+          <input
+              :id="getFieldID(schema)"
+              type="text"
+              :value="sanitizedValue"
+              :disabled="disabled"
+              :maxlength="schema.max"
+              :placeholder="schema.placeholder"
+              :readonly="schema.readonly"
+              @input="value = $event.target.value" />
+          <button v-if="!schema.readonly" :disabled="disabled" v-on:click.stop.prevent="browse" class="btn-flat">
+            <i class="material-icons">insert_drive_file</i>
+          </button>
+          <img v-if="isImage(value)" :src="sanitizedValue" />
+          <admin-components-pathbrowser
+              v-if="isOpen"
+              :isOpen="isOpen"
+              :browserRoot="browserRoot"
+              :browserType="browserType"
+              :currentPath="currentPath"
+              :selectedPath="selectedPath"
+              :withLinkTab="withLinkTab"
+              :setCurrentPath="setCurrentPath"
+              :setSelectedPath="setSelectedPath"
+              :onCancel="onCancel"
+              :onSelect="onSelect">
+          </admin-components-pathbrowser>
+        </div>
+        <div v-else>
+           <input
+               :id="getFieldID(schema)"
+               type="text"
+               :value="sanitizedValue"
+               :disabled="disabled"
+               :maxlength="schema.max"
+               placeholder="URL"
+               :readonly="schema.readonly"
+               @input="value = $event.target.value" />
+        </div>
       </template>
       <p v-else>{{value}}</p>
     </div>
@@ -69,8 +87,14 @@
                 browserType: PathBrowser.Type.ASSET,
                 currentPath: '/assets',
                 selectedPath: null,
-                withLinkTab: true
+                withLinkTab: true,
+                imageLinkType: this.model.imageLinkType,
+                radioLink: 'internalLink',
+                radioUrl: 'url'
             }
+        },
+        created(){
+           this.imageLinkType = this.imageLinkType || 'internalLink'
         },
         computed: {
 			sanitizedValue: {
@@ -87,6 +111,9 @@
           this.currentPath = this.getBasePath() + this.currentPath
       },
       methods: {
+            setLinkType(){
+              this.model.imageLinkType = this.imageLinkType;
+            },
             getBasePath() {
               const view = $perAdminApp.getView()
               let tenant = { name: 'example' }
