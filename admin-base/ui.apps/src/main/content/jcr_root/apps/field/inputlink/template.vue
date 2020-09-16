@@ -39,9 +39,9 @@
               :maxlength="schema.max"
               :placeholder="schema.internalLinkPlaceholder"
               :readonly="schema.readonly"
-              @input="value=$event.target.value" style="width: 235px;" />
-          <button v-on:click.stop.prevent="browse" class="btn-flat">
-            <i class="material-icons">insert_drive_file</i>
+              @input="value=$event.target.value" style="width: 245px;"/>
+          <button v-if="!schema.readonly" :disabled="disabled" v-on:click.stop.prevent="browse" class="btn-flat">
+              <i class="material-icons">insert_drive_file</i>
           </button>
           <img v-if="isImage(value)" :src="sanitizedValue" />
           <admin-components-pathbrowser
@@ -67,7 +67,7 @@
               :maxlength="schema.max"
               :placeholder="schema.urlPlaceholder"
               :readonly="schema.readonly"
-              @input="value = $event.target.value" style="width: 235px;" />
+              @input="value = $event.target.value" style="width: 245px;"/>
         </div>
       </template>
       <p v-else>{{value}}</p>
@@ -75,15 +75,16 @@
 </template>
 
 <script>
+    import {PathBrowser} from '../../../../../js/constants';
     export default {
         props: ['model'],
         mixins: [ VueFormGenerator.abstractField ],
         data () {
             return {
                 isOpen: false,
-                browserRoot: '/content/assets',
-                browserType: 'asset',
-                currentPath: '/content/assets',
+                browserRoot: '/pages',
+                browserType: PathBrowser.Type.PAGE,
+                currentPath: '/pages',
                 selectedPath: null,
                 withLinkTab: true,
                 linkType: this.model.linkType,
@@ -93,6 +94,8 @@
         },
         created(){
             this.linkType = this.linkType || 'internalLink'
+            this.browserRoot = this.getBasePath() + this.browserRoot
+            this.currentPath = this.getBasePath() + this.currentPath
         },
         computed: {
             sanitizedValue: {
@@ -107,6 +110,14 @@
         methods: {
             setLinkType(){
                 this.model.linkType = this.linkType;
+            },
+            getBasePath() {
+                const view = $perAdminApp.getView()
+                let tenant = { name: 'example' }
+                if (view.state.tenant) {
+                  tenant = view.state.tenant
+                }
+                return `/content/${tenant.name}`
             },
             onCancel(){
                 this.isOpen = false
@@ -137,7 +148,7 @@
                 // browser type is used to limit browsing and show correct file/icon types
                 let type = this.schema.browserType
                 if(!type) {
-                    root === '/content/sites' ? type = 'page' : type = 'asset'
+                    root === `${this.getBasePath()}/pages` ? type = PathBrowser.Type.PAGE : type = PathBrowser.Type.ASSET
                 }
                 let selectedPath = this.value
                 // current path is the active directory in the path browser
@@ -157,7 +168,7 @@
                 if(options && options.withLink){
                     this.withLinkTab = options.withLink
                 } else {
-                    this.withLinkTab = true
+                    this.withLinkTab = !(type === PathBrowser.Type.IMAGE)
                 }
                 $perAdminApp.getApi().populateNodesForBrowser(currentPath, 'pathBrowser')
                     .then( () => {
