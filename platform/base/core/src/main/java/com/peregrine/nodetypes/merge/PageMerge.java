@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -54,6 +55,8 @@ import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.scripting.sightly.pojo.Use;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ResourceBundle;
 
 /**
  * Created by rr on 5/8/2017.
@@ -104,7 +107,7 @@ public class PageMerge implements Use {
             Resource content = resource.getChild(JCR_CONTENT);
             if(content == null) return Collections.<String, String> emptyMap();
             Map page = modelFactory
-                .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
+                    .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
             String templatePath = (String) page.get(TEMPLATE);
             if(templatePath == null) {
                 if(compile(REGEX_TEMPLATES).matcher(resource.getParent().getPath()).find()) {
@@ -164,6 +167,7 @@ public class PageMerge implements Use {
     }
 
     private void mergeArrays(ArrayList target, ArrayList value) {
+
         for (Iterator it = value.iterator(); it.hasNext(); ) {
             Object val = it.next();
             log.debug("array merge: {}",val.getClass());
@@ -236,15 +240,61 @@ public class PageMerge implements Use {
         } catch(UnsupportedOperationException e) {
             log.error("Failed to fetch the request locale.", e);
         }
+        // log.info("===== 247 map " + map);
+        // log.info("===== 247 map.getClass() " + map.getClass());
+        // Map nodeProperties = new LinkedHashMap();
+        // for (int index = 0; index < nodeProperties.size(); index++) {
+        // LinkedHashMap experience = (LinkedHashMap) nodeProperties.get(index);
+        // }
+
+        Locale locale = null;
+        ResourceBundle bundle = null;
+        try {
+            locale = request.getLocale();
+            bundle = request.getResourceBundle(locale);
+        } catch(UnsupportedOperationException e) {
+            log.error("Failed to fetch the request locale.", e);
+        }
+
+
+        Set set = map.entrySet();
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry me = (Map.Entry)iterator.next();
+            // log.info("===== 248 me" + me);
+            // log.info("===== 250 me.getClass()" + me.getClass());
+
+            // log.info("==== 252 me.getKey() " + me.getKey());
+            // log.info("==== 253 me.getValue() " + me.getValue());
+
+            // log.info("==== 261 me.getKey().getClass()" + me.getKey().getClass().getName());
+            if (me.getValue() != null && "java.lang.String".equals(me.getKey().getClass().getName())) {
+                if (bundle != null) {
+                    String newMessage = bundle.getString(me.getValue().toString());
+                    // log.info("==== 173 germanMessage " + newMessage);
+                    if ("java.lang.String".equals(map.get(me.getKey()).getClass().getName())) {
+                        map.put(me.getKey(), bundle.getString(me.getValue().toString()));
+                    }
+                }
+            }
+
+
+        }
+
         Map localizedContent = getLocalizedContent((ArrayList) map.get("experiences"), localeLanguage);
 
         // Replacing the node properties with localized one.
         ArrayList<String> excludedProperties = new ArrayList<String>(Arrays.asList("name", "path", "component", "jcr:primaryType", "experiences"));
         Set localizeContentSet = localizedContent.entrySet();
         Iterator localizeContentIterator = localizeContentSet.iterator();
+
+
+
+
         while (localizeContentIterator.hasNext()) {
             Map.Entry localizeContentMap = (Map.Entry) localizeContentIterator.next();
             if (!excludedProperties.contains(localizeContentMap.getKey())) {
+
                 map.put(localizeContentMap.getKey(), localizeContentMap.getValue());
             }
         }
@@ -292,6 +342,7 @@ public class PageMerge implements Use {
 
     @Override
     public void init(final Bindings bindings) {
+        log.info("===== 345 in init");
         request = (SlingHttpServletRequest) bindings.get(REQUEST);
         SlingScriptHelper sling = (SlingScriptHelper) bindings.get(SLING);
         modelFactory = sling.getService(ModelFactory.class);

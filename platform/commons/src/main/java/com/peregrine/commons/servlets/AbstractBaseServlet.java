@@ -691,6 +691,9 @@ public abstract class AbstractBaseServlet
         private Resource resource;
         private RequestDispatcherOptions requestDispatcherOptions;
 
+        public final Logger logger2 = LoggerFactory.getLogger(getClass());
+
+
         /**
          * Creates a Forward Response
          * @param resource Resource to be forwarded to
@@ -704,10 +707,15 @@ public abstract class AbstractBaseServlet
             }
             this.resource = resource;
             this.requestDispatcherOptions = requestDispatcherOptions;
+
+            Logger logger3 = LoggerFactory.getLogger(getClass());
+                logger3.info("===== 708 In ForwardResponse ");
         }
 
         @Override
         public void handleDirect(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException, ServletException {
+            logger2.info("===== 711 resource " + resource);
+            logger2.info("===== 712 requestDispatcherOptions " + requestDispatcherOptions);
             request.getRequestDispatcher(resource, requestDispatcherOptions).forward(request, response);
         }
 
