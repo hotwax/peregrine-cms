@@ -39,7 +39,7 @@
               :maxlength="schema.max"
               :placeholder="schema.internalLinkPlaceholder"
               :readonly="schema.readonly"
-              @input="value=$event.target.value" style="width: 245px;"/>
+              @input="value=$event.target.value" style="width: 230px;"/>
           <button v-if="!schema.readonly" :disabled="disabled" v-on:click.stop.prevent="browse" class="btn-flat">
               <i class="material-icons">insert_drive_file</i>
           </button>
@@ -67,7 +67,7 @@
               :maxlength="schema.max"
               :placeholder="schema.urlPlaceholder"
               :readonly="schema.readonly"
-              @input="value = $event.target.value" style="width: 245px;"/>
+              @input="value = $event.target.value" style="width: 230px;"/>
         </div>
       </template>
       <p v-else>{{value}}</p>
