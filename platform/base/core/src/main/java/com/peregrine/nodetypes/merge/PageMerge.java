@@ -13,9 +13,9 @@ package com.peregrine.nodetypes.merge;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -39,7 +39,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.script.Bindings;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -177,6 +181,68 @@ public class PageMerge implements Use {
                             target.set(i, merge((Map)t, map));
                             log.debug("{}", target.get(i));
                             merged = true;
+                        }
+                    }
+                }
+
+                Locale locale = null;
+                ResourceBundle bundle = null;
+                try {
+                    locale = request.getLocale();
+                    bundle = request.getResourceBundle(locale);
+                } catch(UnsupportedOperationException e) {
+                    log.error("Failed to fetch the request locale.", e);
+                }
+
+                Set set = map.entrySet();
+                Iterator iterator = set.iterator();
+                while(iterator.hasNext()) {
+                    Map.Entry me = (Map.Entry)iterator.next();
+                    // log.info("===== 248 me" + me);
+                    // log.info("===== 250 me.getClass()" + me.getClass());
+
+                    // log.info("==== 252 me.getKey() " + me.getKey());
+                    // log.info("==== 253 me.getValue() " + me.getValue());
+
+                    // log.info("==== 261 me.getKey().getClass()" + me.getKey().getClass().getName());
+                    if (me.getValue() != null && "java.lang.String".equals(me.getKey().getClass().getName())) {
+                        if (bundle != null) {
+                            // log.info("====== 209 me.getValue().getClass().getName() " + me.getValue().getClass().getName());
+                            String newMessage = bundle.getString(me.getValue().toString());
+                            // // log.info("==== 173 germanMessage " + newMessage);
+                            if ("java.lang.String".equals(map.get(me.getKey()).getClass().getName())) {
+                                map.put(me.getKey(), bundle.getString(me.getValue().toString()));
+                            }
+
+
+                            if ("java.util.ArrayList".equals(me.getValue().getClass().getName())) {
+                                ArrayList childValues = (ArrayList) me.getValue();
+                                for (int index = 0; index < childValues.size(); index++) {
+                                    LinkedHashMap childContentMap = (LinkedHashMap) childValues.get(index);
+
+                                    Set childContentSet = childContentMap.entrySet();
+                                    Iterator childContentIterator = childContentSet.iterator();
+                                    while(childContentIterator.hasNext()) {
+                                        Map.Entry childContent = (Map.Entry)childContentIterator.next();
+                                        // log.info("===== 227 childContent " + childContent);
+                                        // log.info("===== 228 childContent.getClass().getName() " + childContent.getClass().getName());
+
+                                        // LinkedHashMap childContentValue = (LinkedHashMap) childContent;
+
+                                        // log.info("====== 232 childContent.getValue() " + childContent.getValue());
+                                        childContent.setValue(bundle.getString(childContent.getValue().toString()));
+                                        /*
+                                        Set subChildContentSet = childContent.entrySet();
+                                        Iterator subChildContentIterator = subChildContentSet.iterator();
+
+                                        while(subChildContentIterator.hasNext()) {
+                                            Map.Entry subChildContent = (Map.Entry)subChildContentIterator.next();
+                                            // log.info("===== 237 subChildContent " + subChildContent);
+                                        }*/
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -39,4 +39,5 @@ public interface AdminPaths {
     public static final String RESOURCE_TYPE_LIST_VERSIONS = API_PREFIX + "listVersions";
     public static final String RESOURCE_TYPE_RESTORE_RECYCLABLE = API_PREFIX + "restoreRecyclable";
     public static final String RESOURCE_TYPE_USER_PREFERENCES = API_PREFIX + "userPreferences";
+    public static final String RESOURCE_TYPE_EXPORT = API_PREFIX + "export";
 }
