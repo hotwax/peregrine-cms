@@ -54,15 +54,21 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import com.peregrine.adaption.PerPage;
 import com.peregrine.adaption.PerPageManager;
+
+import javax.script.Bindings;
+import org.apache.sling.api.SlingHttpServletRequest;
 /**
  * Forwards the Request to .data.json page rendering and replacing any
  * selectors for 'data'
@@ -81,14 +87,34 @@ import com.peregrine.adaption.PerPageManager;
 )
 @SuppressWarnings("serial")
 public class ExportServlet extends AbstractBaseServlet {
-
     private final Logger log = LoggerFactory.getLogger(ExportServlet.class);
+
 
     @Reference
     ModelFactory modelFactory;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {
+
+        log.info("====== 99 request.getClass().getName() " + request.getClass().getName());
+        SlingHttpServletRequest slingHttpServletRequest = request.getRequest();
+
+        String language = request.getParameter("language");
+        log.info("====== 95 language " + language);
+
+        Locale locale = new Locale(language);
+        log.info("===== 99 locale " + locale);
+
+        ResourceBundle bundle = null;
+        bundle = slingHttpServletRequest.getResourceBundle(locale);
+
+
+        JsonResponse jsonResponse = new JsonResponse();
+        ArrayList<String> excludedProperties =
+                new ArrayList<String>(Arrays.asList("name", "path", "component",
+                        "link", "linkType", "image", "imageLinkType", "url",
+                        "jcr:lastModified", "jcr:primaryType", "slot", "jcr:lastModifiedBy",
+                        "aligntext"));
 
         String suffix = request.getSuffix();
         log.info("===== 76 suffix " + suffix);
@@ -140,6 +166,13 @@ public class ExportServlet extends AbstractBaseServlet {
                                     log.info("====== 138 componentProperty " + componentProperty);
                                     log.info("====== 141 componentProperty.getClass().getName() " + componentProperty.getClass().getName());
 
+                                    String componentPropertyValue = (String) componentProperty.getValue();
+                                    if (bundle != null) {
+                                        componentPropertyValue = bundle.getString(componentPropertyValue);
+                                    }
+                                    if (!excludedProperties.contains(componentProperty.getKey()) && ! componentPropertyValue.isEmpty() ) {
+                                        jsonResponse.writeAttribute((String) componentProperty.getValue(), componentPropertyValue);
+                                    }
                                 } else if (componentProperty.getValue() != null && "java.util.ArrayList".equals(componentProperty.getValue().getClass().getName())) {
                                     log.info("===== 144 it is like carousel or cards");
 
@@ -157,6 +190,20 @@ public class ExportServlet extends AbstractBaseServlet {
 
                                             log.info("====== 157 childContent.getKey() " + childContent.getKey());
                                             log.info("====== 158 childContent.getValue() " + childContent.getValue());
+
+                                            if (!excludedProperties.contains(childContent.getKey())) {
+                                                log.info("===== 173");
+
+                                                String childContentValue = (String) childContent.getValue();
+                                                if (bundle != null) {
+                                                    childContentValue = bundle.getString(childContentValue);
+                                                }
+
+                                                if (!childContentValue.isEmpty()) {
+                                                    log.info("===== 176");
+                                                    jsonResponse.writeAttribute((String) childContent.getValue(), childContentValue);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -194,11 +241,20 @@ public class ExportServlet extends AbstractBaseServlet {
             log.error("not able to find exporter for model", e);
         }
 
+
+
+        return jsonResponse;
+
+
+        /*
         RequestDispatcherOptions rdOptions = new RequestDispatcherOptions();
         rdOptions.setReplaceSelectors(DATA);
 
 
+
         return new ForwardResponse(res, rdOptions);
+
+         */
     }
 }
 
