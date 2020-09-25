@@ -1,8 +1,6 @@
 package com.peregrine.admin.servlets;
 
 import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_EXPORT;
-import static com.peregrine.commons.util.PerConstants.DATA;
-import static com.peregrine.commons.util.PerConstants.DATA_JSON_EXTENSION;
 import static com.peregrine.commons.util.PerConstants.JACKSON;
 import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
 import static com.peregrine.commons.util.PerUtil.EQUALS;
@@ -14,10 +12,11 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVL
 import static org.osgi.framework.Constants.SERVICE_DESCRIPTION;
 import static org.osgi.framework.Constants.SERVICE_VENDOR;
 
+import com.peregrine.adaption.PerPage;
+import com.peregrine.adaption.PerPageManager;
 import com.peregrine.commons.servlets.AbstractBaseServlet;
-import java.io.IOException;
-import javax.servlet.Servlet;
-import org.apache.sling.api.request.RequestDispatcherOptions;
+
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.models.factory.ExportException;
@@ -38,12 +37,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.io.IOException;
+import javax.servlet.Servlet;
 
-import com.peregrine.adaption.PerPage;
-import com.peregrine.adaption.PerPageManager;
-
-import javax.script.Bindings;
-import org.apache.sling.api.SlingHttpServletRequest;
 /**
  * Forwards the Request to .data.json page rendering and replacing any
  * selectors for 'data'
@@ -232,15 +228,15 @@ public class ExportServlet extends AbstractBaseServlet {
                                         } else if ("java.util.ArrayList".equals(componentProperty.getValue().getClass().getName())) {
                                             log.info("===== 144 it is like carousel or cards");
 
-                                            ArrayList childValues = (ArrayList) componentProperty.getValue();
-                                            for (int i = 0; i < childValues.size(); i++) {
-                                                LinkedHashMap subChildContentMap = (LinkedHashMap) childValues.get(i);
+                                            ArrayList containerComponent = (ArrayList) componentProperty.getValue();
+                                            for (int i = 0; i < containerComponent.size(); i++) {
+                                                LinkedHashMap subComponent = (LinkedHashMap) containerComponent.get(i);
 
-                                                Set subChildContentSet = subChildContentMap.entrySet();
-                                                Iterator subChildContentIterator = subChildContentSet.iterator();
+                                                Set subComponentSet = subComponent.entrySet();
+                                                Iterator subComponentIterator = subComponentSet.iterator();
 
-                                                while (subChildContentIterator.hasNext()) {
-                                                    Map.Entry childContent = (Map.Entry) subChildContentIterator.next();
+                                                while (subComponentIterator.hasNext()) {
+                                                    Map.Entry childContent = (Map.Entry) subComponentIterator.next();
                                                     log.info("====== 151 childContent " + childContent);
                                                     log.info("====== 152 childContent.getClass().getName() " + childContent.getClass().getName());
 
