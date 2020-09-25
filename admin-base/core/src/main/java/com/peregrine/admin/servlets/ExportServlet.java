@@ -1,30 +1,5 @@
 package com.peregrine.admin.servlets;
 
-/*-
- * #%L
- * admin base - Core
- * %%
- * Copyright (C) 2017 headwire inc.
- * %%
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * #L%
- */
-
 import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_EXPORT;
 import static com.peregrine.commons.util.PerConstants.DATA;
 import static com.peregrine.commons.util.PerConstants.DATA_JSON_EXTENSION;
@@ -89,25 +64,18 @@ import org.apache.sling.api.SlingHttpServletRequest;
 public class ExportServlet extends AbstractBaseServlet {
     private final Logger log = LoggerFactory.getLogger(ExportServlet.class);
 
-
     @Reference
     ModelFactory modelFactory;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {
-
-        log.info("====== 99 request.getClass().getName() " + request.getClass().getName());
-        SlingHttpServletRequest slingHttpServletRequest = request.getRequest();
-
         String language = request.getParameter("language");
-        log.info("====== 95 language " + language);
-
-        Locale locale = new Locale(language);
-        log.info("===== 99 locale " + locale);
-
         ResourceBundle bundle = null;
-        bundle = slingHttpServletRequest.getResourceBundle(locale);
-
+        if (language != null) {
+            Locale locale = new Locale(language);
+            SlingHttpServletRequest slingHttpServletRequest = request.getRequest();
+            bundle = slingHttpServletRequest.getResourceBundle(locale);
+        }
 
         JsonResponse jsonResponse = new JsonResponse();
         ArrayList<String> excludedProperties =
@@ -117,98 +85,188 @@ public class ExportServlet extends AbstractBaseServlet {
                         "aligntext"));
 
         String suffix = request.getSuffix();
-        log.info("===== 76 suffix " + suffix);
-        if(suffix.endsWith(DATA_JSON_EXTENSION)) {
-            suffix = suffix.substring(0, suffix.indexOf(DATA_JSON_EXTENSION));
-        }
-        log.info("===== 83 suffix " + suffix);
-
-        // here we can put our logic of child nodes from tree
         PerPageManager ppm = request.getResource().getResourceResolver().adaptTo(PerPageManager.class);
-        // PerPage perPage = ppm.getPage("/content/themecapybara/pages");
         PerPage perPage = ppm.getPage(suffix);
         if (perPage != null) {
             for (PerPage child : perPage.listChildren()) {
                 if (!child.getPath().equals(perPage.getPath())) {
                     log.info("===== 103 child.getTitle() " + child.getTitle());
+                    // about-us
                     log.info("===== 104 child.getPath() " + child.getPath());
-                    // childPages.add(new Page(child, levels));
+                    // /content/themecapybara/pages/about-us
+
                     log.info("========= start ==============");
+                    // getResourceByPath is reference from ContentServlet
                     Resource res = request.getResourceByPath(child.getPath());
                     log.info("===== 106 child res " + res);
+                    // JcrNodeResource, type=per:Page, superType=null, path=/content/themecapybara/pages/about-us
 
+                    // Reference from PageMerge, getMerged method 102
                     Resource content = res.getChild(JCR_CONTENT);
                     log.info("===== 111 child content " + content);
-
-
+                    // JcrNodeResource, type=themecapybara/components/page, superType=null, path=/content/themecapybara/pages/about-us/jcr:content
                     try {
-                        // if(content == null) return Collections.<String, String> emptyMap();
-                        Map childPage = modelFactory
-                                .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
+                        if (content != null) {
+                            // Reference from PageMerge, getMerged method 102
+                            Map childPage = modelFactory
+                                    .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
 
-                        log.info("===== 119 childPage " + childPage);
-                        log.info("===== 120 childPage.getClass().getName() " + childPage.getClass().getName());
-                        log.info("===== 121 childPage.get('children').getClass().getName() " + childPage.get("children").getClass().getName());
+                            log.info("===== 119 childPage " + childPage);
+                            /*
 
-                        ArrayList childrens = (ArrayList) childPage.get("children");
-                        for (int index = 0; index < childrens.size(); index++) {
-                            log.info("===== 125 childrens.get(index).getClass().getName() " + childrens.get(index).getClass().getName());
-                            LinkedHashMap childContentMap = (LinkedHashMap) childrens.get(index);
-                            log.info("====== 126 childContentMap " + childContentMap);
+                            {
+                               "experiences=null",
+                               "children="[
+                                  {
+                                     "experiences=null",
+                                     "title=This is a""miracle",
+                                     "text=lets go and <b>write</b> some content!",
+                                     "path=/jcr":content/nc396a373-b22d-426b-8842-5132cfa6d418,
+                                     "component=themecapybara-components-richtext"
+                                  },
+                                  {
+                                     "experiences=null",
+                                     "slides="[
+                                        {
+                                           name=slides0,
+                                           "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides0,
+                                           "component=nt":"unstructured",
+                                           "jcr":"primaryType=nt":"unstructured",
+                                           subtitle=SUMMER COLLECTION 2020,
+                                           "imageLinkType=internalLink",
+                                           image=/content/themecapybara/assets/images/Carousel1.png,
+                                           "title=Colorful summer dresses are already in store",
+                                           "aligntext=left"
+                                        },
+                                        {
+                                           name=slides1,
+                                           "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides1,
+                                           "component=nt":"unstructured",
+                                           "jcr":"primaryType=nt":"unstructured",
+                                           subtitle=SUMMER COLLECTION 2020,
+                                           "imageLinkType=internalLink",
+                                           image=/content/themecapybara/assets/images/Carousel2.png,
+                                           "title=Find clothing that expresses your individuality",
+                                           "aligntext=right"
+                                        }
+                                     ],
+                                     "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127,
+                                     "component=themecapybara-components-carousel"
+                                  }
+                             */
+                            log.info("===== 120 childPage.getClass().getName() " + childPage.getClass().getName());
+                            // java.util.LinkedHashMap
 
-                            Set childContentSet = childContentMap.entrySet();
-                            Iterator childContentIterator = childContentSet.iterator();
+                            log.info("===== 121 childPage.get('children').getClass().getName() " + childPage.get("children").getClass().getName());
+                            // java.util.ArrayList
+                            ArrayList children = (ArrayList) childPage.get("children");
+                            for (int index = 0; index < children.size(); index++) {
+                                log.info("===== 125 children.get(index).getClass().getName() " + children.get(index).getClass().getName());
+                                // java.util.LinkedHashMap
+                                LinkedHashMap childContentMap = (LinkedHashMap) children.get(index);
+                                log.info("====== 126 childContentMap " + childContentMap);
+                                /*
+                                {
+                                   "experiences=null",
+                                   "title=This is a""miracle",
+                                   "text=lets go and <b>write</b> some content!",
+                                   "path=/jcr":content/nc396a373-b22d-426b-8842-5132cfa6d418,
+                                   "component=themecapybara-components-richtext"
+                                }
 
-                            while(childContentIterator.hasNext()) {
-                                Map.Entry componentProperty = (Map.Entry) childContentIterator.next();
-                                if (componentProperty.getValue() != null && "java.lang.String".equals(componentProperty.getValue().getClass().getName())) {
-                                    log.info("==== 137 it is plan key and value");
-                                    log.info("====== 138 componentProperty " + componentProperty);
-                                    log.info("====== 141 componentProperty.getClass().getName() " + componentProperty.getClass().getName());
+                                OR
 
-                                    String componentPropertyValue = (String) componentProperty.getValue();
-                                    if (bundle != null) {
-                                        componentPropertyValue = bundle.getString(componentPropertyValue);
-                                    }
-                                    if (!excludedProperties.contains(componentProperty.getKey()) && ! componentPropertyValue.isEmpty() ) {
-                                        jsonResponse.writeAttribute((String) componentProperty.getValue(), componentPropertyValue);
-                                    }
-                                } else if (componentProperty.getValue() != null && "java.util.ArrayList".equals(componentProperty.getValue().getClass().getName())) {
-                                    log.info("===== 144 it is like carousel or cards");
+                                {
+                                   "experiences=null",
+                                   "slides="[
+                                      {
+                                         name=slides0,
+                                         "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides0,
+                                         "component=nt":"unstructured",
+                                         "jcr":"primaryType=nt":"unstructured",
+                                         subtitle=SUMMER COLLECTION 2020,
+                                         "imageLinkType=internalLink",
+                                         image=/content/themecapybara/assets/images/Carousel1.png,
+                                         "title=Colorful summer dresses are already in store",
+                                         "aligntext=left"
+                                      },
+                                      {
+                                         name=slides1,
+                                         "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides1,
+                                         "component=nt":"unstructured",
+                                         "jcr":"primaryType=nt":"unstructured",
+                                         subtitle=SUMMER COLLECTION 2020,
+                                         "imageLinkType=internalLink",
+                                         image=/content/themecapybara/assets/images/Carousel2.png,
+                                         "title=Find clothing that expresses your individuality",
+                                         "aligntext=right"
+                                      }
+                                   ],
+                                   "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127,
+                                   "component=themecapybara-components-carousel"
+                                }
 
-                                    ArrayList childValues = (ArrayList) componentProperty.getValue();
-                                    for (int i = 0; i < childValues.size(); i++) {
-                                        LinkedHashMap subChildContentMap = (LinkedHashMap) childValues.get(i);
+                                 */
 
-                                        Set subChildContentSet = subChildContentMap.entrySet();
-                                        Iterator subChildContentIterator = subChildContentSet.iterator();
+                                Set childContentSet = childContentMap.entrySet();
+                                Iterator childContentIterator = childContentSet.iterator();
 
-                                        while(subChildContentIterator.hasNext()) {
-                                            Map.Entry childContent = (Map.Entry)subChildContentIterator.next();
-                                            log.info("====== 151 childContent " + childContent);
-                                            log.info("====== 152 childContent.getClass().getName() " + childContent.getClass().getName());
+                                while (childContentIterator.hasNext()) {
+                                    Map.Entry componentProperty = (Map.Entry) childContentIterator.next();
+                                    if (componentProperty.getValue() != null) {
+                                        if ("java.lang.String".equals(componentProperty.getValue().getClass().getName())) {
+                                            log.info("==== 137 it is plan key and value");
+                                            log.info("====== 138 componentProperty " + componentProperty);
+                                            // path=/jcr:content/nc396a373-b22d-426b-8842-5132cfa6d418
 
-                                            log.info("====== 157 childContent.getKey() " + childContent.getKey());
-                                            log.info("====== 158 childContent.getValue() " + childContent.getValue());
+                                            log.info("====== 141 componentProperty.getClass().getName() " + componentProperty.getClass().getName());
+                                            // java.util.LinkedHashMap$Entry
 
-                                            if (!excludedProperties.contains(childContent.getKey())) {
-                                                log.info("===== 173");
+                                            String componentPropertyValue = (String) componentProperty.getValue();
+                                            if (bundle != null) {
+                                                componentPropertyValue = bundle.getString(componentPropertyValue);
+                                            }
+                                            if (!excludedProperties.contains(componentProperty.getKey()) && !componentPropertyValue.isEmpty()) {
+                                                jsonResponse.writeAttribute((String) componentProperty.getValue(), componentPropertyValue);
+                                            }
+                                        } else if ("java.util.ArrayList".equals(componentProperty.getValue().getClass().getName())) {
+                                            log.info("===== 144 it is like carousel or cards");
 
-                                                String childContentValue = (String) childContent.getValue();
-                                                if (bundle != null) {
-                                                    childContentValue = bundle.getString(childContentValue);
-                                                }
+                                            ArrayList childValues = (ArrayList) componentProperty.getValue();
+                                            for (int i = 0; i < childValues.size(); i++) {
+                                                LinkedHashMap subChildContentMap = (LinkedHashMap) childValues.get(i);
 
-                                                if (!childContentValue.isEmpty()) {
-                                                    log.info("===== 176");
-                                                    jsonResponse.writeAttribute((String) childContent.getValue(), childContentValue);
+                                                Set subChildContentSet = subChildContentMap.entrySet();
+                                                Iterator subChildContentIterator = subChildContentSet.iterator();
+
+                                                while (subChildContentIterator.hasNext()) {
+                                                    Map.Entry childContent = (Map.Entry) subChildContentIterator.next();
+                                                    log.info("====== 151 childContent " + childContent);
+                                                    log.info("====== 152 childContent.getClass().getName() " + childContent.getClass().getName());
+
+                                                    log.info("====== 157 childContent.getKey() " + childContent.getKey());
+                                                    log.info("====== 158 childContent.getValue() " + childContent.getValue());
+
+                                                    if (!excludedProperties.contains(childContent.getKey())) {
+                                                        log.info("===== 173");
+
+                                                        String childContentValue = (String) childContent.getValue();
+                                                        if (bundle != null) {
+                                                            childContentValue = bundle.getString(childContentValue);
+                                                        }
+
+                                                        if (!childContentValue.isEmpty()) {
+                                                            log.info("===== 176");
+                                                            jsonResponse.writeAttribute((String) childContent.getValue(), childContentValue);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
 
+                            }
                         }
 
                     } catch (ExportException e) {
@@ -216,45 +274,12 @@ public class ExportServlet extends AbstractBaseServlet {
                     } catch (MissingExporterException e) {
                         log.error("not able to find exporter for model", e);
                     }
-
                     log.info("=========== end ============");
-
                 }
             }
         }
 
-        Resource res = request.getResourceByPath(suffix);
-        log.info("===== 85 res " + res);
-
-        Resource content = res.getChild(JCR_CONTENT);
-        log.info("===== 88 content " + content);
-
-        try {
-            // if(content == null) return Collections.<String, String> emptyMap();
-            Map page = modelFactory
-                    .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
-
-            log.info("===== 95 page " + page);
-        } catch (ExportException e) {
-            log.error("not able to export model", e);
-        } catch (MissingExporterException e) {
-            log.error("not able to find exporter for model", e);
-        }
-
-
-
         return jsonResponse;
-
-
-        /*
-        RequestDispatcherOptions rdOptions = new RequestDispatcherOptions();
-        rdOptions.setReplaceSelectors(DATA);
-
-
-
-        return new ForwardResponse(res, rdOptions);
-
-         */
     }
 }
 
