@@ -395,13 +395,20 @@ export default {
     },
     togglePreview() {
       const view = $perAdminApp.getView()
-      const current = get(view, '/state/tools/workspace/preview', null)
-      $perAdminApp.stateAction('editPreview', current ? null : 'preview')
-    },
-    previewInNewTab() {
-      const view = $perAdminApp.getView()
-      const page = get(view, '/pageView/path', null)
-      window.open(page + '.html', 'viewer')
+      if(view.pageView.path) {
+        //TODO: baseUrl should be maintain in configuration file
+        var baseUrl = "https://dev.hotwax.io";
+        var path = view.pageView.path;
+        var pageName= path.substring(path.lastIndexOf("/"),path.length);
+        //TODO: We should work on better approach here to find url for the index page
+        if (pageName === "/index") {
+           window.open(baseUrl)
+        } else {
+        var storeFrontUrl = baseUrl + pageName;
+        window.open(storeFrontUrl)
+        }
+      }
+      return "";
     },
     itemIsTag(tagName) {
       const selection = this.getSelection(0)
