@@ -1,5 +1,5 @@
 import preview from './preview'
-import viewport from './viewport'
+//import viewport from './viewport'
 
 export default (vm) => {
   return {
@@ -7,8 +7,8 @@ export default (vm) => {
     noCollapse: true,
     rules: () => vm.showAlwaysActive,
     items: [
-      preview(vm),
-      viewport(vm)
+      preview(vm)
+      //viewport(vm)
     ]
   }
 }
