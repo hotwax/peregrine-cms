@@ -1,6 +1,5 @@
 import preview from './preview'
 import viewport from './viewport'
-import previewInNewTab from './previewInNewTab'
 
 export default (vm) => {
   return {
@@ -9,7 +8,6 @@ export default (vm) => {
     rules: () => vm.showAlwaysActive,
     items: [
       preview(vm),
-      previewInNewTab(vm),
       viewport(vm)
     ]
   }

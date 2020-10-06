@@ -128,13 +128,9 @@
                         </admin-components-action>
 
                         <span v-if="viewable(child)">
-                            <a
-                                target      ="viewer"
-                                v-bind:href ="viewUrl(child)"
-                                v-on:click.stop  =""
-                                v-bind:title="`${$i18n('view')} '${child.title || child.name}' ${$i18n('inNewTab')}`"
-                                >
-                                <i class="material-icons">visibility</i>
+                            <a target = "viewer" v-bind:href = "getStoreFrontUrl(child.title)" v-on:click.stop  = ""
+                                 v-bind:title = "`${$i18n('view')} '${child.title || child.name}' ${$i18n('preview')}`">
+                                 <i class="material-icons">visibility</i>
                             </a>
                         </span>
 
@@ -508,17 +504,15 @@ export default {
                 return ['per:Page', 'per:Object', 'nt:file'].indexOf(child.resourceType) >= 0
             },
 
-            viewUrl: function(child) {
-                var path = child.path
-                var segments = path.split('/')
-                var last = segments.pop()
-                if(last.indexOf('.') >= 0) {
-                    return path
+            getStoreFrontUrl: function(pageName) {
+                //TODO: baseUrl should be maintain in configuration file
+                var baseUrl = "https://dev.hotwax.io/";
+                //TODO: We should work on better approach here to find url for the index page
+                if (pageName === "index") {
+                    return baseUrl;
                 }
-                if(child.resourceType === 'per:Page') {
-                    return path + '.html'
-                }
-                return path + '.json'
+                var storeFrontUrl = baseUrl + pageName;
+                return storeFrontUrl;
             },
 
             nodeTypeToIcon: function(nodeType) {
