@@ -1,0 +1,26 @@
+diff --git a/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/explorer/template.vue b/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/explorer/template.vue
+index 8ae974a87..a7abab44d 100644
+--- a/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/explorer/template.vue
++++ b/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/explorer/template.vue
+@@ -506,7 +506,7 @@ export default {
+ 
+             getStoreFrontUrl: function(pageName) {
+                 //TODO: baseUrl should be maintain in configuration file
+-                var baseUrl = "https://dev.hotwax.io/";
++                var baseUrl = "https://demo.hotwax.io/";
+                 //TODO: We should work on better approach here to find url for the index page
+                 if (pageName === "index") {
+                     return baseUrl;
+diff --git a/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/richtoolbar/template.vue b/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/richtoolbar/template.vue
+index 086c1644b..57558ad67 100644
+--- a/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/richtoolbar/template.vue
++++ b/admin-base/ui.apps/src/main/content/jcr_root/apps/admin/components/richtoolbar/template.vue
+@@ -397,7 +397,7 @@ export default {
+       const view = $perAdminApp.getView()
+       if(view.pageView.path) {
+         //TODO: baseUrl should be maintain in configuration file
+-        var baseUrl = "https://dev.hotwax.io";
++        var baseUrl = "https://demo.hotwax.io";
+         var path = view.pageView.path;
+         var pageName= path.substring(path.lastIndexOf("/"),path.length);
+         //TODO: We should work on better approach here to find url for the index page
