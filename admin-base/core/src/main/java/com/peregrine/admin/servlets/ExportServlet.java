@@ -86,30 +86,22 @@ public class ExportServlet extends AbstractBaseServlet {
         if (perPage != null) {
             for (PerPage child : perPage.listChildren()) {
                 if (!child.getPath().equals(perPage.getPath())) {
-                    log.info("===== 103 child.getTitle() " + child.getTitle());
-                    // about-us
-                    log.info("===== 104 child.getPath() " + child.getPath());
-                    // /content/themecapybara/pages/about-us
-
-                    log.info("========= start ==============");
+                    // e.g. path: /content/themecapybara/pages/about-us
                     // getResourceByPath is reference from ContentServlet
                     Resource res = request.getResourceByPath(child.getPath());
-                    log.info("===== 106 child res " + res);
-                    // JcrNodeResource, type=per:Page, superType=null, path=/content/themecapybara/pages/about-us
+                    // e.g. res = JcrNodeResource, type=per:Page, superType=null, path=/content/themecapybara/pages/about-us
 
                     // Reference from PageMerge, getMerged method 102
                     Resource content = res.getChild(JCR_CONTENT);
-                    log.info("===== 111 child content " + content);
-                    // JcrNodeResource, type=themecapybara/components/page, superType=null, path=/content/themecapybara/pages/about-us/jcr:content
+                    // e.g. content = JcrNodeResource, type=themecapybara/components/page, superType=null, path=/content/themecapybara/pages/about-us/jcr:content
                     try {
                         if (content != null) {
                             // Reference from PageMerge, getMerged method 102
                             Map childPage = modelFactory
                                     .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
 
-                            log.info("===== 119 childPage " + childPage);
                             /*
-
+                            e.g. childPage
                             {
                                "experiences=null",
                                "children="[
@@ -150,60 +142,9 @@ public class ExportServlet extends AbstractBaseServlet {
                                      "component=themecapybara-components-carousel"
                                   }
                              */
-                            log.info("===== 120 childPage.getClass().getName() " + childPage.getClass().getName());
-                            // java.util.LinkedHashMap
-
-                            log.info("===== 121 childPage.get('children').getClass().getName() " + childPage.get("children").getClass().getName());
-                            // java.util.ArrayList
                             ArrayList children = (ArrayList) childPage.get("children");
                             for (int index = 0; index < children.size(); index++) {
-                                log.info("===== 125 children.get(index).getClass().getName() " + children.get(index).getClass().getName());
-                                // java.util.LinkedHashMap
                                 LinkedHashMap childContentMap = (LinkedHashMap) children.get(index);
-                                log.info("====== 126 childContentMap " + childContentMap);
-                                /*
-                                {
-                                   "experiences=null",
-                                   "title=This is a""miracle",
-                                   "text=lets go and <b>write</b> some content!",
-                                   "path=/jcr":content/nc396a373-b22d-426b-8842-5132cfa6d418,
-                                   "component=themecapybara-components-richtext"
-                                }
-
-                                OR
-
-                                {
-                                   "experiences=null",
-                                   "slides="[
-                                      {
-                                         name=slides0,
-                                         "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides0,
-                                         "component=nt":"unstructured",
-                                         "jcr":"primaryType=nt":"unstructured",
-                                         subtitle=SUMMER COLLECTION 2020,
-                                         "imageLinkType=internalLink",
-                                         image=/content/themecapybara/assets/images/Carousel1.png,
-                                         "title=Colorful summer dresses are already in store",
-                                         "aligntext=left"
-                                      },
-                                      {
-                                         name=slides1,
-                                         "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127/slides/slides1,
-                                         "component=nt":"unstructured",
-                                         "jcr":"primaryType=nt":"unstructured",
-                                         subtitle=SUMMER COLLECTION 2020,
-                                         "imageLinkType=internalLink",
-                                         image=/content/themecapybara/assets/images/Carousel2.png,
-                                         "title=Find clothing that expresses your individuality",
-                                         "aligntext=right"
-                                      }
-                                   ],
-                                   "path=/jcr":content/naed9ea61-5e55-4738-b443-187ea75e1127,
-                                   "component=themecapybara-components-carousel"
-                                }
-
-                                 */
-
                                 Set childContentSet = childContentMap.entrySet();
                                 Iterator childContentIterator = childContentSet.iterator();
 
@@ -211,13 +152,6 @@ public class ExportServlet extends AbstractBaseServlet {
                                     Map.Entry componentProperty = (Map.Entry) childContentIterator.next();
                                     if (componentProperty.getValue() != null) {
                                         if ("java.lang.String".equals(componentProperty.getValue().getClass().getName())) {
-                                            log.info("==== 137 it is plan key and value");
-                                            log.info("====== 138 componentProperty " + componentProperty);
-                                            // path=/jcr:content/nc396a373-b22d-426b-8842-5132cfa6d418
-
-                                            log.info("====== 141 componentProperty.getClass().getName() " + componentProperty.getClass().getName());
-                                            // java.util.LinkedHashMap$Entry
-
                                             String componentPropertyValue = (String) componentProperty.getValue();
                                             if (bundle != null) {
                                                 componentPropertyValue = bundle.getString(componentPropertyValue);
@@ -226,33 +160,20 @@ public class ExportServlet extends AbstractBaseServlet {
                                                 jsonResponse.writeAttribute((String) componentProperty.getValue(), componentPropertyValue);
                                             }
                                         } else if ("java.util.ArrayList".equals(componentProperty.getValue().getClass().getName())) {
-                                            log.info("===== 144 it is like carousel or cards");
-
                                             ArrayList containerComponent = (ArrayList) componentProperty.getValue();
                                             for (int i = 0; i < containerComponent.size(); i++) {
                                                 LinkedHashMap subComponent = (LinkedHashMap) containerComponent.get(i);
-
                                                 Set subComponentSet = subComponent.entrySet();
                                                 Iterator subComponentIterator = subComponentSet.iterator();
 
                                                 while (subComponentIterator.hasNext()) {
                                                     Map.Entry childContent = (Map.Entry) subComponentIterator.next();
-                                                    log.info("====== 151 childContent " + childContent);
-                                                    log.info("====== 152 childContent.getClass().getName() " + childContent.getClass().getName());
-
-                                                    log.info("====== 157 childContent.getKey() " + childContent.getKey());
-                                                    log.info("====== 158 childContent.getValue() " + childContent.getValue());
-
                                                     if (!excludedProperties.contains(childContent.getKey())) {
-                                                        log.info("===== 173");
-
                                                         String childContentValue = (String) childContent.getValue();
                                                         if (bundle != null) {
                                                             childContentValue = bundle.getString(childContentValue);
                                                         }
-
                                                         if (!childContentValue.isEmpty()) {
-                                                            log.info("===== 176");
                                                             jsonResponse.writeAttribute((String) childContent.getValue(), childContentValue);
                                                         }
                                                     }
@@ -261,7 +182,6 @@ public class ExportServlet extends AbstractBaseServlet {
                                         }
                                     }
                                 }
-
                             }
                         }
 
@@ -270,11 +190,9 @@ public class ExportServlet extends AbstractBaseServlet {
                     } catch (MissingExporterException e) {
                         log.error("not able to find exporter for model", e);
                     }
-                    log.info("=========== end ============");
                 }
             }
         }
-
         return jsonResponse;
     }
 }
