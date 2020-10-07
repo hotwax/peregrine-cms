@@ -55,6 +55,24 @@
             out in the admin console.   
         </p>
     </div>
+
+    <h2>Export Site Data</h2>
+    <div class="row">
+      <div class="col m4">
+        <label><b> Language </b></label>
+        <select class="browser-default" v-model="language">
+          <option value=""> Default </option>
+          <option value="en"> English </option>
+          <option value="it"> Italian </option>
+          <option value="de"> German </option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <a v-bind:href="exportSiteUrl" title="Export Site Data" target="_blank"
+         class='btn'>Export Site Data</a>
+    </div>
+
     <h2>backup and restore</h2>
     <div>
         <admin-components-action
@@ -98,6 +116,11 @@
 
 <script>
     export default {
+        data: function () {
+          return {
+            language: ''
+          }
+        },
         props: ['model'],
         methods: {
             editRootTemplate(me, target) {
@@ -143,6 +166,10 @@
             downloadUrl() {
                 const tenant = $perAdminApp.getView().state.tenant;
                 return tenant ? '/perapi/admin/downloadBackupTenant.zip/content/' + tenant.name : '';
+            },
+            exportSiteUrl() {
+              const tenant = $perAdminApp.getView().state.tenant;
+              return tenant ? '/perapi/admin/export.json/content/' + tenant.name +  '/pages?language=' + this.language : '';
             },
             backupInfo() {
                 return $perAdminApp.getView().state.tools.backup

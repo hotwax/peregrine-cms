@@ -13,9 +13,9 @@ package com.peregrine.nodetypes.merge;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,10 +36,15 @@ import static java.util.regex.Pattern.compile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.script.Bindings;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -168,6 +173,10 @@ public class PageMerge implements Use {
             if(val instanceof Map) {
                 Map map = (Map) val;
                 String path = (String) map.get(PATH);
+
+                // Localize content
+                localizeContent(map);
+
                 if(path != null) {
                     log.debug("find entry for {}", path);
                     for (int i = 0; i < target.size(); i++) {
@@ -184,6 +193,49 @@ public class PageMerge implements Use {
 
             if(!target.contains(val) && !merged) {
                 target.add(val);
+            }
+        }
+    }
+
+    private void localizeContent(Map map) {
+        Locale locale = null;
+        ResourceBundle bundle = null;
+        try {
+            locale = request.getLocale();
+            bundle = request.getResourceBundle(locale);
+        } catch (UnsupportedOperationException e) {
+            log.error("Failed to fetch the request locale.", e);
+        }
+        ArrayList<String> excludedProperties = new ArrayList<String>(Arrays.asList("name", "path", "component",
+                "link", "linkType", "image", "imageLinkType", "url",
+                "jcr:lastModified", "jcr:primaryType", "slot", "jcr:lastModifiedBy",
+                "aligntext"));
+
+        if (bundle != null) {
+            Set set = map.entrySet();
+            Iterator iterator = set.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry node = (Map.Entry) iterator.next();
+                if (node.getValue() != null) {
+                    if ("java.lang.String".equals(node.getValue().getClass().getName())) {
+                        if (!excludedProperties.contains(node.getKey())) {
+                            map.put(node.getKey(), bundle.getString(node.getValue().toString()));
+                        }
+                    } else if ("java.util.ArrayList".equals(node.getValue().getClass().getName())) {
+                        ArrayList childValues = (ArrayList) node.getValue();
+                        for (int index = 0; index < childValues.size(); index++) {
+                            LinkedHashMap childContentMap = (LinkedHashMap) childValues.get(index);
+                            Set childContentSet = childContentMap.entrySet();
+                            Iterator childContentIterator = childContentSet.iterator();
+                            while (childContentIterator.hasNext()) {
+                                Map.Entry childContent = (Map.Entry) childContentIterator.next();
+                                if (!excludedProperties.contains(childContent.getKey())) {
+                                    childContent.setValue(bundle.getString(childContent.getValue().toString()));
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
