@@ -91,12 +91,10 @@ public class ExportServlet extends AbstractBaseServlet {
                     Resource res = request.getResourceByPath(child.getPath());
                     // e.g. res = JcrNodeResource, type=per:Page, superType=null, path=/content/themecapybara/pages/about-us
 
-                    // Reference from PageMerge, getMerged method 102
                     Resource content = res.getChild(JCR_CONTENT);
                     // e.g. content = JcrNodeResource, type=themecapybara/components/page, superType=null, path=/content/themecapybara/pages/about-us/jcr:content
                     try {
                         if (content != null) {
-                            // Reference from PageMerge, getMerged method 102
                             Map childPage = modelFactory
                                     .exportModelForResource(content, JACKSON, Map.class, Collections.emptyMap());
 
@@ -184,7 +182,6 @@ public class ExportServlet extends AbstractBaseServlet {
                                 }
                             }
                         }
-
                     } catch (ExportException e) {
                         log.error("not able to export model", e);
                     } catch (MissingExporterException e) {

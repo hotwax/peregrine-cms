@@ -36,6 +36,7 @@ import static java.util.regex.Pattern.compile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -172,6 +173,10 @@ public class PageMerge implements Use {
             if(val instanceof Map) {
                 Map map = (Map) val;
                 String path = (String) map.get(PATH);
+
+                // Localize content
+                localizeContent(map);
+
                 if(path != null) {
                     log.debug("find entry for {}", path);
                     for (int i = 0; i < target.size(); i++) {
@@ -184,72 +189,53 @@ public class PageMerge implements Use {
                         }
                     }
                 }
+            }
 
-                Locale locale = null;
-                ResourceBundle bundle = null;
-                try {
-                    locale = request.getLocale();
-                    bundle = request.getResourceBundle(locale);
-                } catch(UnsupportedOperationException e) {
-                    log.error("Failed to fetch the request locale.", e);
-                }
+            if(!target.contains(val) && !merged) {
+                target.add(val);
+            }
+        }
+    }
 
-                Set set = map.entrySet();
-                Iterator iterator = set.iterator();
-                while(iterator.hasNext()) {
-                    Map.Entry me = (Map.Entry)iterator.next();
-                    // log.info("===== 248 me" + me);
-                    // log.info("===== 250 me.getClass()" + me.getClass());
+    private void localizeContent(Map map) {
+        Locale locale = null;
+        ResourceBundle bundle = null;
+        try {
+            locale = request.getLocale();
+            bundle = request.getResourceBundle(locale);
+        } catch (UnsupportedOperationException e) {
+            log.error("Failed to fetch the request locale.", e);
+        }
+        ArrayList<String> excludedProperties = new ArrayList<String>(Arrays.asList("name", "path", "component",
+                "link", "linkType", "image", "imageLinkType", "url",
+                "jcr:lastModified", "jcr:primaryType", "slot", "jcr:lastModifiedBy",
+                "aligntext"));
 
-                    // log.info("==== 252 me.getKey() " + me.getKey());
-                    // log.info("==== 253 me.getValue() " + me.getValue());
-
-                    // log.info("==== 261 me.getKey().getClass()" + me.getKey().getClass().getName());
-                    if (me.getValue() != null && "java.lang.String".equals(me.getKey().getClass().getName())) {
-                        if (bundle != null) {
-                            // log.info("====== 209 me.getValue().getClass().getName() " + me.getValue().getClass().getName());
-                            String newMessage = bundle.getString(me.getValue().toString());
-                            // // log.info("==== 173 germanMessage " + newMessage);
-                            if ("java.lang.String".equals(map.get(me.getKey()).getClass().getName())) {
-                                map.put(me.getKey(), bundle.getString(me.getValue().toString()));
-                            }
-
-
-                            if ("java.util.ArrayList".equals(me.getValue().getClass().getName())) {
-                                ArrayList childValues = (ArrayList) me.getValue();
-                                for (int index = 0; index < childValues.size(); index++) {
-                                    LinkedHashMap childContentMap = (LinkedHashMap) childValues.get(index);
-
-                                    Set childContentSet = childContentMap.entrySet();
-                                    Iterator childContentIterator = childContentSet.iterator();
-                                    while(childContentIterator.hasNext()) {
-                                        Map.Entry childContent = (Map.Entry)childContentIterator.next();
-                                        // log.info("===== 227 childContent " + childContent);
-                                        // log.info("===== 228 childContent.getClass().getName() " + childContent.getClass().getName());
-
-                                        // LinkedHashMap childContentValue = (LinkedHashMap) childContent;
-
-                                        // log.info("====== 232 childContent.getValue() " + childContent.getValue());
-                                        childContent.setValue(bundle.getString(childContent.getValue().toString()));
-                                        /*
-                                        Set subChildContentSet = childContent.entrySet();
-                                        Iterator subChildContentIterator = subChildContentSet.iterator();
-
-                                        while(subChildContentIterator.hasNext()) {
-                                            Map.Entry subChildContent = (Map.Entry)subChildContentIterator.next();
-                                            // log.info("===== 237 subChildContent " + subChildContent);
-                                        }*/
-
-                                    }
+        if (bundle != null) {
+            Set set = map.entrySet();
+            Iterator iterator = set.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry node = (Map.Entry) iterator.next();
+                if (node.getValue() != null) {
+                    if ("java.lang.String".equals(node.getValue().getClass().getName())) {
+                        if (!excludedProperties.contains(node.getKey())) {
+                            map.put(node.getKey(), bundle.getString(node.getValue().toString()));
+                        }
+                    } else if ("java.util.ArrayList".equals(node.getValue().getClass().getName())) {
+                        ArrayList childValues = (ArrayList) node.getValue();
+                        for (int index = 0; index < childValues.size(); index++) {
+                            LinkedHashMap childContentMap = (LinkedHashMap) childValues.get(index);
+                            Set childContentSet = childContentMap.entrySet();
+                            Iterator childContentIterator = childContentSet.iterator();
+                            while (childContentIterator.hasNext()) {
+                                Map.Entry childContent = (Map.Entry) childContentIterator.next();
+                                if (!excludedProperties.contains(childContent.getKey())) {
+                                    childContent.setValue(bundle.getString(childContent.getValue().toString()));
                                 }
                             }
                         }
                     }
                 }
-            }
-
-            if(!target.contains(val) && !merged) {
-                target.add(val);
             }
         }
     }

@@ -2288,7 +2288,6 @@ public class AdminResourceHandlerService
     }
 
     public Resource updateResource(final ResourceResolver resourceResolver, final String path, final String jsonContent) throws ManagementException {
-        logger.info("====== 2291 in AdminResourceHandler");
         if (isEmpty(jsonContent)) {
             throw new ManagementException(String.format(NO_CONTENT_PROVIDED, path));
         }
