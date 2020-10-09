@@ -190,6 +190,11 @@ public class ExportServlet extends AbstractBaseServlet {
                 }
             }
         }
+
+        if (language.isEmpty()) {
+            language = "default";
+        }
+        jsonResponse.addHeader("Content-Disposition","attachment; filename=\"" + language +".json\"");
         return jsonResponse;
     }
 }
